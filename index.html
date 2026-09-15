@@ -1,45 +1,44 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>ESP32 Control</title>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, Tahoma, sans-serif;
       background: #0f172a;
-      color: #f8fafc;
+      color: white;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: 24px 16px;
+      padding: 30px 15px;
     }
 
-    .app {
+    .container {
       width: 100%;
       max-width: 460px;
     }
 
-    .title {
+    h1 {
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 5px;
     }
 
-    .title h1 {
-      margin: 0 0 6px;
-      font-size: 28px;
-    }
-
-    .title p {
-      margin: 0;
+    .subtitle {
+      text-align: center;
       color: #94a3b8;
-      font-size: 14px;
+      margin-bottom: 25px;
     }
 
     .card {
@@ -47,29 +46,26 @@
       border: 1px solid #334155;
       border-radius: 20px;
       padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+      margin-bottom: 18px;
     }
 
-    .row {
+    .top-row {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      align-items: center;
     }
 
     .label {
-      color: #94a3b8;
       font-size: 13px;
+      color: #94a3b8;
       margin-bottom: 8px;
     }
 
-    .conn {
-      display: inline-flex;
+    .connection {
+      display: flex;
       align-items: center;
       gap: 8px;
       font-weight: bold;
-      font-size: 14px;
     }
 
     .dot {
@@ -79,44 +75,64 @@
       background: #64748b;
     }
 
-    .dot.online { background: #22c55e; }
-    .dot.offline { background: #ef4444; }
-    .dot.connecting { background: #f59e0b; }
+    .dot.online {
+      background: #22c55e;
+    }
+
+    .dot.offline {
+      background: #ef4444;
+    }
+
+    .dot.connecting {
+      background: #f59e0b;
+    }
 
     .status-box {
       text-align: center;
-      padding: 26px 10px 18px;
+      padding: 25px 0;
     }
 
     .status {
-      font-size: 48px;
-      font-weight: 800;
-      letter-spacing: 1px;
+      font-size: 50px;
+      font-weight: bold;
       color: #94a3b8;
     }
 
-    .status.on { color: #22c55e; }
-    .status.off { color: #ef4444; }
-    .status.other { color: #f59e0b; }
+    .status.on {
+      color: #22c55e;
+    }
+
+    .status.off {
+      color: #ef4444;
+    }
+
+    .status.other {
+      color: #f59e0b;
+    }
+
+    .last-update {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
 
     .buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-top: 16px;
     }
 
     button {
-      border: 0;
-      border-radius: 14px;
-      padding: 17px 14px;
+      border: none;
+      border-radius: 15px;
+      padding: 18px;
       font-size: 22px;
-      font-weight: 800;
+      font-weight: bold;
       cursor: pointer;
     }
 
     button:disabled {
-      opacity: .45;
+      opacity: 0.4;
       cursor: not-allowed;
     }
 
@@ -134,262 +150,850 @@
       width: 100%;
       background: #3b82f6;
       color: white;
-      font-size: 17px;
-      margin-top: 12px;
+      margin-top: 5px;
+      font-size: 18px;
     }
 
     .btn-disconnect {
       width: 100%;
       background: #475569;
       color: white;
-      font-size: 17px;
       margin-top: 10px;
+      font-size: 18px;
     }
 
     input {
       width: 100%;
+      padding: 14px;
+      margin-bottom: 10px;
+      border-radius: 12px;
       border: 1px solid #475569;
       background: #0f172a;
-      color: #f8fafc;
-      border-radius: 12px;
-      padding: 13px 14px;
+      color: white;
       font-size: 16px;
-      outline: none;
-      margin-bottom: 10px;
     }
 
     input:focus {
-      border-color: #60a5fa;
-    }
-
-    .small {
-      font-size: 12px;
-      line-height: 1.5;
-      color: #94a3b8;
-      margin-top: 10px;
+      outline: none;
+      border-color: #3b82f6;
     }
 
     .log {
       background: #0f172a;
       border-radius: 12px;
       padding: 12px;
-      min-height: 72px;
+      min-height: 90px;
       font-family: Consolas, monospace;
       font-size: 12px;
-      color: #cbd5e1;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
+      color: #cbd5e1;
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
 
-    <div class="title">
-      <h1>ESP32 Control</h1>
-      <p>ESP-WROOM-32 • MQTT Control</p>
-    </div>
+<div class="container">
 
-    <div class="card">
-      <div class="row">
-        <div>
-          <div class="label">MQTT CONNECTION</div>
-          <div class="conn">
-            <span id="connDot" class="dot"></span>
-            <span id="connText">Disconnected</span>
-          </div>
+  <h1>ESP32 CONTROL</h1>
+  <div class="subtitle">
+    ESP-WROOM-32 MQTT Control
+  </div>
+
+
+  <div class="card">
+
+    <div class="top-row">
+
+      <div>
+        <div class="label">
+          MQTT CONNECTION
         </div>
-        <div style="text-align:right">
-          <div class="label">DEVICE</div>
-          <strong>ESP01</strong>
+
+        <div class="connection">
+          <span id="connDot" class="dot"></span>
+          <span id="connText">
+            Disconnected
+          </span>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="label">ESP32 OUTPUT STATUS</div>
+      <div style="text-align:right">
 
-      <div class="status-box">
-        <div id="status" class="status">---</div>
-        <div id="lastUpdate" class="small">ยังไม่มีข้อมูลสถานะ</div>
+        <div class="label">
+          DEVICE
+        </div>
+
+        <strong>
+          ESP01
+        </strong>
+
       </div>
 
-      <div class="buttons">
-        <button id="onBtn" class="btn-on" onclick="sendCommand('ON')" disabled>ON</button>
-        <button id="offBtn" class="btn-off" onclick="sendCommand('OFF')" disabled>OFF</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="label">LOGIN MQTT</div>
-
-      <input id="username" type="text" value="esp01" autocomplete="username" placeholder="Username">
-      <input id="password" type="password" autocomplete="current-password" placeholder="HiveMQ Password">
-
-      <button id="connectBtn" class="btn-connect" onclick="connectMQTT()">Connect</button>
-      <button id="disconnectBtn" class="btn-disconnect" onclick="disconnectMQTT()" disabled>Disconnect</button>
-
-      <div class="small">
-        Password จะไม่ถูกเขียนไว้ในไฟล์ HTML นี้ กรุณากรอกตอนเปิดหน้าเว็บ
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="label">SYSTEM LOG</div>
-      <div id="log" class="log">Ready.</div>
     </div>
 
   </div>
 
+
+  <div class="card">
+
+    <div class="label">
+      ESP32 OUTPUT STATUS
+    </div>
+
+    <div class="status-box">
+
+      <div
+        id="status"
+        class="status"
+      >
+        ---
+      </div>
+
+      <div
+        id="lastUpdate"
+        class="last-update"
+      >
+        ยังไม่มีข้อมูล
+      </div>
+
+    </div>
+
+
+    <div class="buttons">
+
+      <button
+        id="onBtn"
+        class="btn-on"
+        onclick="sendCommand('ON')"
+        disabled
+      >
+        ON
+      </button>
+
+      <button
+        id="offBtn"
+        class="btn-off"
+        onclick="sendCommand('OFF')"
+        disabled
+      >
+        OFF
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="label">
+      LOGIN MQTT
+    </div>
+
+    <input
+      id="username"
+      type="text"
+      value="esp01"
+      placeholder="Username"
+    >
+
+    <input
+      id="password"
+      type="password"
+      placeholder="HiveMQ Password"
+    >
+
+    <button
+      id="connectBtn"
+      class="btn-connect"
+      onclick="connectMQTT()"
+    >
+      Connect
+    </button>
+
+    <button
+      id="disconnectBtn"
+      class="btn-disconnect"
+      onclick="disconnectMQTT()"
+      disabled
+    >
+      Disconnect
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="label">
+      SYSTEM LOG
+    </div>
+
+    <div
+      id="log"
+      class="log"
+    >
+      Ready.
+    </div>
+
+  </div>
+
+</div>
+
+
+
 <script>
-  const MQTT_HOST = "380dfaf330224340913625c3fd2802b8.s1.eu.hivemq.cloud";
-  const MQTT_PORT = 8884;
 
-  const COMMAND_TOPIC = "factory/esp01/command";
-  const STATUS_TOPIC  = "factory/esp01/status";
+/* ================================
+   MQTT SETTINGS
+================================ */
 
-  let client = null;
+const MQTT_HOST =
+"380dfaf330224340913625c3fd2802b8.s1.eu.hivemq.cloud";
 
-  function log(message) {
-    const now = new Date().toLocaleTimeString();
-    const el = document.getElementById("log");
-    el.textContent = `[${now}] ${message}\n` + el.textContent;
+const MQTT_PORT =
+8884;
+
+
+const COMMAND_TOPIC =
+"factory/esp01/command";
+
+const STATUS_TOPIC =
+"factory/esp01/status";
+
+
+
+/* ================================
+   VARIABLES
+================================ */
+
+let client = null;
+
+let manualDisconnect = false;
+
+
+
+/* ================================
+   LOG
+================================ */
+
+function log(message) {
+
+  const now =
+    new Date().toLocaleTimeString();
+
+  const logBox =
+    document.getElementById("log");
+
+  logBox.textContent =
+    "[" +
+    now +
+    "] " +
+    message +
+    "\n" +
+    logBox.textContent;
+}
+
+
+
+/* ================================
+   CONNECTION STATUS
+================================ */
+
+function setConnection(
+  state,
+  text
+) {
+
+  const dot =
+    document.getElementById(
+      "connDot"
+    );
+
+  const label =
+    document.getElementById(
+      "connText"
+    );
+
+
+  dot.className =
+    "dot " + state;
+
+  label.textContent =
+    text;
+
+
+  const connected =
+    state === "online";
+
+
+  document
+    .getElementById(
+      "onBtn"
+    )
+    .disabled =
+    !connected;
+
+
+  document
+    .getElementById(
+      "offBtn"
+    )
+    .disabled =
+    !connected;
+
+
+  document
+    .getElementById(
+      "connectBtn"
+    )
+    .disabled =
+    connected ||
+    state === "connecting";
+
+
+  document
+    .getElementById(
+      "disconnectBtn"
+    )
+    .disabled =
+    !connected;
+}
+
+
+
+/* ================================
+   ESP STATUS
+================================ */
+
+function setStatus(message) {
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+  const msg =
+    message
+    .trim()
+    .toUpperCase();
+
+
+  status.textContent =
+    msg;
+
+
+  if (msg === "ON") {
+
+    status.className =
+      "status on";
+
   }
 
-  function setConnection(state, text) {
-    const dot = document.getElementById("connDot");
-    const label = document.getElementById("connText");
+  else if (msg === "OFF") {
 
-    dot.className = "dot " + state;
-    label.textContent = text;
+    status.className =
+      "status off";
 
-    const connected = state === "online";
-    document.getElementById("onBtn").disabled = !connected;
-    document.getElementById("offBtn").disabled = !connected;
-    document.getElementById("connectBtn").disabled = connected || state === "connecting";
-    document.getElementById("disconnectBtn").disabled = !connected;
   }
 
-  function setStatus(message) {
-    const status = document.getElementById("status");
-    const msg = message.trim().toUpperCase();
+  else {
 
-    status.textContent = msg;
+    status.className =
+      "status other";
 
-    if (msg === "ON") {
-      status.className = "status on";
-    } else if (msg === "OFF") {
-      status.className = "status off";
-    } else {
-      status.className = "status other";
-    }
-
-    document.getElementById("lastUpdate").textContent =
-      "อัปเดตล่าสุด: " + new Date().toLocaleString();
   }
 
-  function connectMQTT() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
 
-    if (!username || !password) {
-      alert("กรุณาใส่ Username และ Password");
-      return;
-    }
+  document
+    .getElementById(
+      "lastUpdate"
+    )
+    .textContent =
+    "อัปเดตล่าสุด: " +
+    new Date()
+    .toLocaleString();
 
-    if (client && client.connected) {
-      return;
-    }
+}
 
-    setConnection("connecting", "Connecting...");
-    log("Connecting to HiveMQ Cloud...");
 
-    const url = `wss://${MQTT_HOST}:${MQTT_PORT}/mqtt`;
 
-    client = mqtt.connect(url, {
-      username: username,
-      password: password,
-      clientId: "WebDashboard_" + Math.random().toString(16).slice(2, 10),
-      clean: true,
-      connectTimeout: 10000,
-      reconnectPeriod: 3000
-    });
+/* ================================
+   CONNECT MQTT
+================================ */
 
-    client.on("connect", function () {
-      setConnection("online", "Connected");
-      log("MQTT connected.");
+function connectMQTT() {
 
-      client.subscribe(STATUS_TOPIC, { qos: 0 }, function(err) {
-        if (err) {
-          log("Subscribe error: " + err.message);
-        } else {
-          log("Subscribed: " + STATUS_TOPIC);
-        }
-      });
-    });
+  const username =
+    document
+    .getElementById(
+      "username"
+    )
+    .value
+    .trim();
 
-    client.on("message", function(topic, payload) {
-      const message = payload.toString();
-      log(`RX ${topic}: ${message}`);
 
-      if (topic === STATUS_TOPIC) {
-        setStatus(message);
-      }
-    });
+  const password =
+    document
+    .getElementById(
+      "password"
+    )
+    .value;
 
-    client.on("reconnect", function() {
-      setConnection("connecting", "Reconnecting...");
-      log("MQTT reconnecting...");
-    });
 
-    client.on("offline", function() {
-      setConnection("offline", "Offline");
-      log("MQTT offline.");
-    });
+  if (
+    !username ||
+    !password
+  ) {
 
-    client.on("close", function() {
-      if (!client || !client.connected) {
-        setConnection("offline", "Disconnected");
-      }
-    });
+    alert(
+      "กรุณาใส่ Username และ Password"
+    );
 
-    client.on("error", function(err) {
-      setConnection("offline", "Error");
-      log("MQTT error: " + err.message);
-    });
+    return;
   }
 
-  function disconnectMQTT() {
-    if (client) {
+
+
+  /* -------------------------------
+     Close old client
+  -------------------------------- */
+
+  if (client) {
+
+    try {
+
       client.end(true);
-      client = null;
+
     }
 
-    setConnection("offline", "Disconnected");
-    log("Disconnected manually.");
+    catch (e) {
+
+      console.log(e);
+
+    }
+
+    client = null;
   }
 
-  function sendCommand(command) {
-    if (!client || !client.connected) {
-      alert("MQTT ยังไม่ได้เชื่อมต่อ");
-      return;
-    }
 
-    client.publish(COMMAND_TOPIC, command, {
-      qos: 0,
-      retain: false
-    }, function(err) {
-      if (err) {
-        log("Publish error: " + err.message);
-      } else {
-        log(`TX ${COMMAND_TOPIC}: ${command}`);
+  manualDisconnect =
+    false;
+
+
+  setConnection(
+    "connecting",
+    "Connecting..."
+  );
+
+
+  log(
+    "Connecting HiveMQ..."
+  );
+
+
+
+  const url =
+    "wss://" +
+    MQTT_HOST +
+    ":" +
+    MQTT_PORT +
+    "/mqtt";
+
+
+
+  client =
+    mqtt.connect(
+      url,
+      {
+
+        username:
+          username,
+
+        password:
+          password,
+
+
+        clientId:
+          "ESP32WEB_" +
+          Date.now() +
+          "_" +
+          Math.random()
+          .toString(16)
+          .slice(2,8),
+
+
+        clean:
+          true,
+
+
+        keepalive:
+          30,
+
+
+        connectTimeout:
+          15000,
+
+
+        reconnectPeriod:
+          5000,
+
+
+        resubscribe:
+          true
+
       }
-    });
+    );
+
+
+
+  /* ===========================
+     CONNECTED
+  =========================== */
+
+  client.on(
+    "connect",
+    function() {
+
+      setConnection(
+        "online",
+        "Connected"
+      );
+
+
+      log(
+        "MQTT Connected"
+      );
+
+
+      client.subscribe(
+        STATUS_TOPIC,
+        {
+          qos: 0
+        },
+        function(err) {
+
+          if (err) {
+
+            log(
+              "Subscribe Error: " +
+              err.message
+            );
+
+          }
+
+          else {
+
+            log(
+              "Subscribed: " +
+              STATUS_TOPIC
+            );
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+
+  /* ===========================
+     MESSAGE RECEIVED
+  =========================== */
+
+  client.on(
+    "message",
+    function(
+      topic,
+      payload
+    ) {
+
+      const message =
+        payload.toString();
+
+
+      log(
+        "RX " +
+        topic +
+        " : " +
+        message
+      );
+
+
+      if (
+        topic ===
+        STATUS_TOPIC
+      ) {
+
+        setStatus(
+          message
+        );
+
+      }
+
+    }
+  );
+
+
+
+  /* ===========================
+     RECONNECT
+  =========================== */
+
+  client.on(
+    "reconnect",
+    function() {
+
+      if (
+        manualDisconnect
+      ) {
+
+        return;
+      }
+
+
+      setConnection(
+        "connecting",
+        "Reconnecting..."
+      );
+
+
+      log(
+        "MQTT Reconnecting..."
+      );
+
+    }
+  );
+
+
+
+  /* ===========================
+     OFFLINE
+  =========================== */
+
+  client.on(
+    "offline",
+    function() {
+
+      if (
+        manualDisconnect
+      ) {
+
+        return;
+      }
+
+
+      setConnection(
+        "connecting",
+        "Reconnecting..."
+      );
+
+
+      log(
+        "MQTT Offline"
+      );
+
+    }
+  );
+
+
+
+  /* ===========================
+     CONNECTION CLOSED
+  =========================== */
+
+  client.on(
+    "close",
+    function() {
+
+      if (
+        manualDisconnect
+      ) {
+
+        return;
+      }
+
+
+      setConnection(
+        "connecting",
+        "Reconnecting..."
+      );
+
+
+      log(
+        "MQTT Connection Closed"
+      );
+
+    }
+  );
+
+
+
+  /* ===========================
+     MQTT ERROR
+  =========================== */
+
+  client.on(
+    "error",
+    function(err) {
+
+      console.log(
+        "MQTT Error",
+        err
+      );
+
+
+      if (
+        manualDisconnect
+      ) {
+
+        return;
+      }
+
+
+      setConnection(
+        "connecting",
+        "Reconnecting..."
+      );
+
+
+      log(
+        "MQTT Error: " +
+        err.message
+      );
+
+    }
+  );
+
+}
+
+
+
+/* ================================
+   DISCONNECT MQTT
+================================ */
+
+function disconnectMQTT() {
+
+  manualDisconnect =
+    true;
+
+
+  if (client) {
+
+    try {
+
+      client.end(
+        true
+      );
+
+    }
+
+    catch (e) {
+
+      console.log(e);
+
+    }
+
+
+    client =
+      null;
+
   }
 
-  setConnection("offline", "Disconnected");
+
+  setConnection(
+    "offline",
+    "Disconnected"
+  );
+
+
+  log(
+    "Disconnected manually"
+  );
+
+}
+
+
+
+/* ================================
+   SEND COMMAND
+================================ */
+
+function sendCommand(
+  command
+) {
+
+  if (
+    !client ||
+    !client.connected
+  ) {
+
+    alert(
+      "MQTT ยังไม่ได้เชื่อมต่อ"
+    );
+
+    return;
+  }
+
+
+  client.publish(
+    COMMAND_TOPIC,
+    command,
+    {
+
+      qos:
+        0,
+
+      retain:
+        false
+
+    },
+
+    function(err) {
+
+      if (err) {
+
+        log(
+          "Publish Error: " +
+          err.message
+        );
+
+      }
+
+      else {
+
+        log(
+          "TX " +
+          COMMAND_TOPIC +
+          " : " +
+          command
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+
+/* ================================
+   START PAGE
+================================ */
+
+setConnection(
+  "offline",
+  "Disconnected"
+);
+
 </script>
 
 </body>
+
 </html>
