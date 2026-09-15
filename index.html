@@ -2,347 +2,394 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบเบิกของด้วย QR Code</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ESP32 Control</title>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, "Noto Sans Thai", sans-serif;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: #f4f6f8;
-      color: #222;
+      font-family: Arial, Tahoma, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
     }
 
     .app {
-      max-width: 520px;
-      margin: 0 auto;
-      min-height: 100vh;
-      background: #fff;
-      padding: 18px;
+      width: 100%;
+      max-width: 460px;
     }
 
-    h1 {
-      margin: 4px 0 6px;
-      font-size: 24px;
-    }
-
-    .subtitle {
-      color: #666;
+    .title {
+      text-align: center;
       margin-bottom: 18px;
     }
 
-    .card {
-      background: #fff;
-      border: 1px solid #e2e6ea;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    }
-
-    #reader {
-      width: 100%;
-      overflow: hidden;
-      border-radius: 12px;
-    }
-
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 17px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .primary {
-      background: #1666d8;
-      color: white;
-    }
-
-    .danger {
-      background: #e74c3c;
-      color: white;
-    }
-
-    .success {
-      background: #1f9d55;
-      color: white;
-    }
-
-    .secondary {
-      background: #e9edf2;
-      color: #222;
-    }
-
-    .result-code {
+    .title h1 {
+      margin: 0 0 6px;
       font-size: 28px;
-      font-weight: bold;
-      color: #1666d8;
-      word-break: break-all;
-      padding: 8px 0 14px;
+    }
+
+    .title p {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
 
     .label {
-      color: #666;
+      color: #94a3b8;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .conn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
       font-size: 14px;
     }
 
-    .qty-box {
-      display: grid;
-      grid-template-columns: 60px 1fr 60px;
-      gap: 10px;
-      align-items: center;
-      margin-top: 10px;
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #64748b;
     }
 
-    .qty-box button {
-      margin: 0;
-      font-size: 22px;
-      padding: 10px;
-    }
+    .dot.online { background: #22c55e; }
+    .dot.offline { background: #ef4444; }
+    .dot.connecting { background: #f59e0b; }
 
-    #qty {
-      width: 100%;
+    .status-box {
       text-align: center;
-      font-size: 22px;
-      padding: 10px;
-      border: 1px solid #ccd2d8;
-      border-radius: 10px;
-    }
-
-    .hidden {
-      display: none;
+      padding: 26px 10px 18px;
     }
 
     .status {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #555;
-      text-align: center;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #94a3b8;
     }
 
-    .success-msg {
+    .status.on { color: #22c55e; }
+    .status.off { color: #ef4444; }
+    .status.other { color: #f59e0b; }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 17px 14px;
+      font-size: 22px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .btn-on {
+      background: #22c55e;
+      color: white;
+    }
+
+    .btn-off {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-connect {
+      width: 100%;
+      background: #3b82f6;
+      color: white;
+      font-size: 17px;
       margin-top: 12px;
-      background: #eaf8ef;
-      border: 1px solid #bfe7cd;
-      padding: 12px;
-      border-radius: 10px;
-      color: #176b38;
     }
 
-    .note {
-      font-size: 13px;
-      color: #777;
+    .btn-disconnect {
+      width: 100%;
+      background: #475569;
+      color: white;
+      font-size: 17px;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+
+    input:focus {
+      border-color: #60a5fa;
+    }
+
+    .small {
+      font-size: 12px;
       line-height: 1.5;
+      color: #94a3b8;
+      margin-top: 10px;
+    }
+
+    .log {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 72px;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
   </style>
 </head>
 
 <body>
   <div class="app">
-    <h1>ระบบเบิกของด้วย QR Code</h1>
-    <div class="subtitle">Prototype สำหรับทดสอบการสแกนด้วยมือถือ</div>
 
-    <div class="card">
-      <div id="reader"></div>
-
-      <button id="startBtn" class="primary" onclick="startScanner()">
-        เปิดกล้องสแกน QR
-      </button>
-
-      <button id="stopBtn" class="danger hidden" onclick="stopScanner()">
-        ปิดกล้อง
-      </button>
-
-      <div id="scanStatus" class="status">
-        ยังไม่ได้เปิดกล้อง
-      </div>
-    </div>
-
-    <div id="resultCard" class="card hidden">
-      <div class="label">QR Code ที่อ่านได้</div>
-      <div id="resultCode" class="result-code">-</div>
-
-      <div class="label">จำนวนเบิก</div>
-      <div class="qty-box">
-        <button class="secondary" onclick="changeQty(-1)">−</button>
-        <input id="qty" type="number" min="1" value="1" />
-        <button class="secondary" onclick="changeQty(1)">+</button>
-      </div>
-
-      <button class="success" onclick="confirmIssue()">
-        ยืนยันการเบิก
-      </button>
-
-      <button class="secondary" onclick="scanAgain()">
-        สแกนรายการใหม่
-      </button>
-
-      <div id="confirmMessage"></div>
+    <div class="title">
+      <h1>ESP32 Control</h1>
+      <p>ESP-WROOM-32 • MQTT Control</p>
     </div>
 
     <div class="card">
-      <div class="note">
-        หมายเหตุ: เวอร์ชันทดสอบนี้ยังไม่ได้เชื่อม Database
-        ระบบจะแสดง Code จาก QR และจำนวนที่เบิกเท่านั้น
-        ขั้นถัดไปสามารถเชื่อม Stock, ชื่อสินค้า, ผู้เบิก และบันทึกประวัติได้
+      <div class="row">
+        <div>
+          <div class="label">MQTT CONNECTION</div>
+          <div class="conn">
+            <span id="connDot" class="dot"></span>
+            <span id="connText">Disconnected</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="label">DEVICE</div>
+          <strong>ESP01</strong>
+        </div>
       </div>
     </div>
+
+    <div class="card">
+      <div class="label">ESP32 OUTPUT STATUS</div>
+
+      <div class="status-box">
+        <div id="status" class="status">---</div>
+        <div id="lastUpdate" class="small">ยังไม่มีข้อมูลสถานะ</div>
+      </div>
+
+      <div class="buttons">
+        <button id="onBtn" class="btn-on" onclick="sendCommand('ON')" disabled>ON</button>
+        <button id="offBtn" class="btn-off" onclick="sendCommand('OFF')" disabled>OFF</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">LOGIN MQTT</div>
+
+      <input id="username" type="text" value="esp01" autocomplete="username" placeholder="Username">
+      <input id="password" type="password" autocomplete="current-password" placeholder="HiveMQ Password">
+
+      <button id="connectBtn" class="btn-connect" onclick="connectMQTT()">Connect</button>
+      <button id="disconnectBtn" class="btn-disconnect" onclick="disconnectMQTT()" disabled>Disconnect</button>
+
+      <div class="small">
+        Password จะไม่ถูกเขียนไว้ในไฟล์ HTML นี้ กรุณากรอกตอนเปิดหน้าเว็บ
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">SYSTEM LOG</div>
+      <div id="log" class="log">Ready.</div>
+    </div>
+
   </div>
 
-  <script>
-    let html5QrCode = null;
-    let currentCode = "";
-    let scanning = false;
+<script>
+  const MQTT_HOST = "380dfaf330224340913625c3fd2802b8.s1.eu.hivemq.cloud";
+  const MQTT_PORT = 8884;
 
-    async function startScanner() {
-      if (scanning) return;
+  const COMMAND_TOPIC = "factory/esp01/command";
+  const STATUS_TOPIC  = "factory/esp01/status";
 
-      document.getElementById("scanStatus").innerText = "กำลังเปิดกล้อง...";
+  let client = null;
 
-      try {
-        html5QrCode = new Html5Qrcode("reader");
+  function log(message) {
+    const now = new Date().toLocaleTimeString();
+    const el = document.getElementById("log");
+    el.textContent = `[${now}] ${message}\n` + el.textContent;
+  }
 
-        const cameras = await Html5Qrcode.getCameras();
+  function setConnection(state, text) {
+    const dot = document.getElementById("connDot");
+    const label = document.getElementById("connText");
 
-        if (!cameras || cameras.length === 0) {
-          throw new Error("ไม่พบกล้อง");
+    dot.className = "dot " + state;
+    label.textContent = text;
+
+    const connected = state === "online";
+    document.getElementById("onBtn").disabled = !connected;
+    document.getElementById("offBtn").disabled = !connected;
+    document.getElementById("connectBtn").disabled = connected || state === "connecting";
+    document.getElementById("disconnectBtn").disabled = !connected;
+  }
+
+  function setStatus(message) {
+    const status = document.getElementById("status");
+    const msg = message.trim().toUpperCase();
+
+    status.textContent = msg;
+
+    if (msg === "ON") {
+      status.className = "status on";
+    } else if (msg === "OFF") {
+      status.className = "status off";
+    } else {
+      status.className = "status other";
+    }
+
+    document.getElementById("lastUpdate").textContent =
+      "อัปเดตล่าสุด: " + new Date().toLocaleString();
+  }
+
+  function connectMQTT() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+      alert("กรุณาใส่ Username และ Password");
+      return;
+    }
+
+    if (client && client.connected) {
+      return;
+    }
+
+    setConnection("connecting", "Connecting...");
+    log("Connecting to HiveMQ Cloud...");
+
+    const url = `wss://${MQTT_HOST}:${MQTT_PORT}/mqtt`;
+
+    client = mqtt.connect(url, {
+      username: username,
+      password: password,
+      clientId: "WebDashboard_" + Math.random().toString(16).slice(2, 10),
+      clean: true,
+      connectTimeout: 10000,
+      reconnectPeriod: 3000
+    });
+
+    client.on("connect", function () {
+      setConnection("online", "Connected");
+      log("MQTT connected.");
+
+      client.subscribe(STATUS_TOPIC, { qos: 0 }, function(err) {
+        if (err) {
+          log("Subscribe error: " + err.message);
+        } else {
+          log("Subscribed: " + STATUS_TOPIC);
         }
-
-        let cameraId = cameras[0].id;
-
-        // พยายามเลือกกล้องหลัง
-        const backCamera = cameras.find(cam =>
-          /back|rear|environment/i.test(cam.label)
-        );
-
-        if (backCamera) {
-          cameraId = backCamera.id;
-        }
-
-        await html5QrCode.start(
-          cameraId,
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 }
-          },
-          onScanSuccess,
-          onScanFailure
-        );
-
-        scanning = true;
-        document.getElementById("startBtn").classList.add("hidden");
-        document.getElementById("stopBtn").classList.remove("hidden");
-        document.getElementById("scanStatus").innerText = "พร้อมสแกน QR Code";
-      } catch (err) {
-        console.error(err);
-        document.getElementById("scanStatus").innerText =
-          "เปิดกล้องไม่ได้: " + err.message;
-      }
-    }
-
-    function onScanSuccess(decodedText) {
-      if (!decodedText) return;
-
-      currentCode = decodedText;
-
-      document.getElementById("resultCode").innerText = currentCode;
-      document.getElementById("resultCard").classList.remove("hidden");
-      document.getElementById("confirmMessage").innerHTML = "";
-      document.getElementById("qty").value = 1;
-
-      if (navigator.vibrate) {
-        navigator.vibrate(150);
-      }
-
-      stopScanner();
-    }
-
-    function onScanFailure(error) {
-      // ไม่ต้องแสดง error ทุก frame
-    }
-
-    async function stopScanner() {
-      if (!html5QrCode || !scanning) {
-        document.getElementById("startBtn").classList.remove("hidden");
-        document.getElementById("stopBtn").classList.add("hidden");
-        return;
-      }
-
-      try {
-        await html5QrCode.stop();
-        await html5QrCode.clear();
-      } catch (err) {
-        console.log(err);
-      }
-
-      scanning = false;
-      document.getElementById("startBtn").classList.remove("hidden");
-      document.getElementById("stopBtn").classList.add("hidden");
-      document.getElementById("scanStatus").innerText = "หยุดสแกนแล้ว";
-    }
-
-    function changeQty(delta) {
-      const qtyInput = document.getElementById("qty");
-      let qty = parseInt(qtyInput.value || "1", 10);
-      qty += delta;
-
-      if (qty < 1) qty = 1;
-
-      qtyInput.value = qty;
-    }
-
-    function confirmIssue() {
-      const qty = parseInt(document.getElementById("qty").value || "1", 10);
-
-      if (!currentCode) {
-        alert("กรุณาสแกน QR Code ก่อน");
-        return;
-      }
-
-      if (!qty || qty < 1) {
-        alert("จำนวนเบิกต้องมากกว่า 0");
-        return;
-      }
-
-      const now = new Date().toLocaleString("th-TH");
-
-      document.getElementById("confirmMessage").innerHTML = `
-        <div class="success-msg">
-          บันทึกตัวอย่างสำเร็จ<br>
-          <strong>Code:</strong> ${escapeHtml(currentCode)}<br>
-          <strong>จำนวน:</strong> ${qty}<br>
-          <strong>เวลา:</strong> ${now}
-        </div>
-      `;
-
-      console.log({
-        code: currentCode,
-        qty: qty,
-        timestamp: new Date().toISOString()
       });
+    });
+
+    client.on("message", function(topic, payload) {
+      const message = payload.toString();
+      log(`RX ${topic}: ${message}`);
+
+      if (topic === STATUS_TOPIC) {
+        setStatus(message);
+      }
+    });
+
+    client.on("reconnect", function() {
+      setConnection("connecting", "Reconnecting...");
+      log("MQTT reconnecting...");
+    });
+
+    client.on("offline", function() {
+      setConnection("offline", "Offline");
+      log("MQTT offline.");
+    });
+
+    client.on("close", function() {
+      if (!client || !client.connected) {
+        setConnection("offline", "Disconnected");
+      }
+    });
+
+    client.on("error", function(err) {
+      setConnection("offline", "Error");
+      log("MQTT error: " + err.message);
+    });
+  }
+
+  function disconnectMQTT() {
+    if (client) {
+      client.end(true);
+      client = null;
     }
 
-    async function scanAgain() {
-      currentCode = "";
-      document.getElementById("resultCard").classList.add("hidden");
-      document.getElementById("confirmMessage").innerHTML = "";
-      await startScanner();
+    setConnection("offline", "Disconnected");
+    log("Disconnected manually.");
+  }
+
+  function sendCommand(command) {
+    if (!client || !client.connected) {
+      alert("MQTT ยังไม่ได้เชื่อมต่อ");
+      return;
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.innerText = text;
-      return div.innerHTML;
-    }
-  </script>
+    client.publish(COMMAND_TOPIC, command, {
+      qos: 0,
+      retain: false
+    }, function(err) {
+      if (err) {
+        log("Publish error: " + err.message);
+      } else {
+        log(`TX ${COMMAND_TOPIC}: ${command}`);
+      }
+    });
+  }
+
+  setConnection("offline", "Disconnected");
+</script>
+
 </body>
 </html>
