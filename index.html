@@ -3,13 +3,16 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
   <title>ESP32 Control</title>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -19,15 +22,12 @@
       font-family: Arial, Tahoma, sans-serif;
       background: #0f172a;
       color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 30px 15px;
+      padding: 25px 15px;
     }
 
     .container {
-      width: 100%;
-      max-width: 460px;
+      max-width: 500px;
+      margin: auto;
     }
 
     h1 {
@@ -44,20 +44,20 @@
     .card {
       background: #1e293b;
       border: 1px solid #334155;
-      border-radius: 20px;
+      border-radius: 18px;
       padding: 20px;
-      margin-bottom: 18px;
+      margin-bottom: 15px;
     }
 
-    .top-row {
+    .connection-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     .label {
-      font-size: 13px;
       color: #94a3b8;
+      font-size: 13px;
       margin-bottom: 8px;
     }
 
@@ -87,14 +87,17 @@
       background: #f59e0b;
     }
 
-    .status-box {
-      text-align: center;
-      padding: 25px 0;
+    .light-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
     }
 
     .status {
-      font-size: 50px;
+      text-align: center;
+      font-size: 38px;
       font-weight: bold;
+      margin: 20px 0;
       color: #94a3b8;
     }
 
@@ -106,16 +109,6 @@
       color: #ef4444;
     }
 
-    .status.other {
-      color: #f59e0b;
-    }
-
-    .last-update {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #94a3b8;
-    }
-
     .buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -124,9 +117,9 @@
 
     button {
       border: none;
-      border-radius: 15px;
-      padding: 18px;
-      font-size: 22px;
+      border-radius: 14px;
+      padding: 17px;
+      font-size: 20px;
       font-weight: bold;
       cursor: pointer;
     }
@@ -151,7 +144,6 @@
       background: #3b82f6;
       color: white;
       margin-top: 5px;
-      font-size: 18px;
     }
 
     .btn-disconnect {
@@ -159,7 +151,6 @@
       background: #475569;
       color: white;
       margin-top: 10px;
-      font-size: 18px;
     }
 
     input {
@@ -173,51 +164,61 @@
       font-size: 16px;
     }
 
-    input:focus {
-      outline: none;
-      border-color: #3b82f6;
-    }
-
     .log {
       background: #0f172a;
-      border-radius: 12px;
       padding: 12px;
-      min-height: 90px;
+      border-radius: 12px;
+      min-height: 80px;
       font-family: Consolas, monospace;
       font-size: 12px;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
       color: #cbd5e1;
     }
+
   </style>
 </head>
+
 
 <body>
 
 <div class="container">
 
+
   <h1>ESP32 CONTROL</h1>
+
   <div class="subtitle">
-    ESP-WROOM-32 MQTT Control
+    3 Output MQTT Control
   </div>
 
 
+  <!-- MQTT STATUS -->
+
   <div class="card">
 
-    <div class="top-row">
+    <div class="connection-row">
 
       <div>
+
         <div class="label">
           MQTT CONNECTION
         </div>
 
         <div class="connection">
-          <span id="connDot" class="dot"></span>
+
+          <span
+            id="connDot"
+            class="dot">
+          </span>
+
           <span id="connText">
             Disconnected
           </span>
+
         </div>
+
       </div>
+
 
       <div style="text-align:right">
 
@@ -236,48 +237,36 @@
   </div>
 
 
+
+  <!-- LIGHT 1 -->
+
   <div class="card">
 
-    <div class="label">
-      ESP32 OUTPUT STATUS
+    <div class="light-title">
+      LIGHT 1
     </div>
 
-    <div class="status-box">
-
-      <div
-        id="status"
-        class="status"
-      >
-        ---
-      </div>
-
-      <div
-        id="lastUpdate"
-        class="last-update"
-      >
-        ยังไม่มีข้อมูล
-      </div>
-
+    <div
+      id="status1"
+      class="status">
+      ---
     </div>
 
 
     <div class="buttons">
 
       <button
-        id="onBtn"
-        class="btn-on"
-        onclick="sendCommand('ON')"
-        disabled
-      >
+        class="btn-on controlButton"
+        onclick="sendCommand(1,'ON')"
+        disabled>
         ON
       </button>
 
+
       <button
-        id="offBtn"
-        class="btn-off"
-        onclick="sendCommand('OFF')"
-        disabled
-      >
+        class="btn-off controlButton"
+        onclick="sendCommand(1,'OFF')"
+        disabled>
         OFF
       </button>
 
@@ -286,44 +275,126 @@
   </div>
 
 
+
+  <!-- LIGHT 2 -->
+
+  <div class="card">
+
+    <div class="light-title">
+      LIGHT 2
+    </div>
+
+    <div
+      id="status2"
+      class="status">
+      ---
+    </div>
+
+
+    <div class="buttons">
+
+      <button
+        class="btn-on controlButton"
+        onclick="sendCommand(2,'ON')"
+        disabled>
+        ON
+      </button>
+
+
+      <button
+        class="btn-off controlButton"
+        onclick="sendCommand(2,'OFF')"
+        disabled>
+        OFF
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- LIGHT 3 -->
+
+  <div class="card">
+
+    <div class="light-title">
+      LIGHT 3
+    </div>
+
+    <div
+      id="status3"
+      class="status">
+      ---
+    </div>
+
+
+    <div class="buttons">
+
+      <button
+        class="btn-on controlButton"
+        onclick="sendCommand(3,'ON')"
+        disabled>
+        ON
+      </button>
+
+
+      <button
+        class="btn-off controlButton"
+        onclick="sendCommand(3,'OFF')"
+        disabled>
+        OFF
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- LOGIN -->
+
   <div class="card">
 
     <div class="label">
-      LOGIN MQTT
+      MQTT LOGIN
     </div>
+
 
     <input
       id="username"
       type="text"
       value="esp01"
-      placeholder="Username"
-    >
+      placeholder="Username">
+
 
     <input
       id="password"
       type="password"
-      placeholder="HiveMQ Password"
-    >
+      placeholder="HiveMQ Password">
+
 
     <button
       id="connectBtn"
       class="btn-connect"
-      onclick="connectMQTT()"
-    >
+      onclick="connectMQTT()">
       Connect
     </button>
+
 
     <button
       id="disconnectBtn"
       class="btn-disconnect"
       onclick="disconnectMQTT()"
-      disabled
-    >
+      disabled>
       Disconnect
     </button>
 
   </div>
 
+
+
+  <!-- LOG -->
 
   <div class="card">
 
@@ -333,12 +404,12 @@
 
     <div
       id="log"
-      class="log"
-    >
+      class="log">
       Ready.
     </div>
 
   </div>
+
 
 </div>
 
@@ -346,28 +417,55 @@
 
 <script>
 
-/* ================================
-   MQTT SETTINGS
-================================ */
+
+/* =====================================
+   MQTT SERVER
+===================================== */
 
 const MQTT_HOST =
 "380dfaf330224340913625c3fd2802b8.s1.eu.hivemq.cloud";
 
-const MQTT_PORT =
-8884;
-
-
-const COMMAND_TOPIC =
-"factory/esp01/command";
-
-const STATUS_TOPIC =
-"factory/esp01/status";
+const MQTT_PORT = 8884;
 
 
 
-/* ================================
+/* =====================================
+   MQTT TOPICS
+===================================== */
+
+const COMMAND_TOPICS = {
+
+  1:
+  "factory/esp01/light1/command",
+
+  2:
+  "factory/esp01/light2/command",
+
+  3:
+  "factory/esp01/light3/command"
+
+};
+
+
+
+const STATUS_TOPICS = {
+
+  1:
+  "factory/esp01/light1/status",
+
+  2:
+  "factory/esp01/light2/status",
+
+  3:
+  "factory/esp01/light3/status"
+
+};
+
+
+
+/* =====================================
    VARIABLES
-================================ */
+===================================== */
 
 let client = null;
 
@@ -375,32 +473,37 @@ let manualDisconnect = false;
 
 
 
-/* ================================
+/* =====================================
    LOG
-================================ */
+===================================== */
 
 function log(message) {
 
-  const now =
-    new Date().toLocaleTimeString();
+  const time =
+    new Date()
+    .toLocaleTimeString();
+
 
   const logBox =
-    document.getElementById("log");
+    document
+    .getElementById("log");
+
 
   logBox.textContent =
     "[" +
-    now +
+    time +
     "] " +
     message +
     "\n" +
     logBox.textContent;
+
 }
 
 
 
-/* ================================
-   CONNECTION STATUS
-================================ */
+/* =====================================
+   MQTT CONNECTION DISPLAY
+===================================== */
 
 function setConnection(
   state,
@@ -408,18 +511,22 @@ function setConnection(
 ) {
 
   const dot =
-    document.getElementById(
+    document
+    .getElementById(
       "connDot"
     );
 
+
   const label =
-    document.getElementById(
+    document
+    .getElementById(
       "connText"
     );
 
 
   dot.className =
     "dot " + state;
+
 
   label.textContent =
     text;
@@ -429,20 +536,21 @@ function setConnection(
     state === "online";
 
 
-  document
-    .getElementById(
-      "onBtn"
-    )
-    .disabled =
-    !connected;
+  const buttons =
+    document
+    .querySelectorAll(
+      ".controlButton"
+    );
 
 
-  document
-    .getElementById(
-      "offBtn"
-    )
-    .disabled =
-    !connected;
+  buttons.forEach(
+    function(button) {
+
+      button.disabled =
+        !connected;
+
+    }
+  );
 
 
   document
@@ -460,20 +568,27 @@ function setConnection(
     )
     .disabled =
     !connected;
+
 }
 
 
 
-/* ================================
-   ESP STATUS
-================================ */
+/* =====================================
+   LIGHT STATUS
+===================================== */
 
-function setStatus(message) {
+function setLightStatus(
+  lightNumber,
+  message
+) {
 
   const status =
-    document.getElementById(
-      "status"
+    document
+    .getElementById(
+      "status" +
+      lightNumber
     );
+
 
   const msg =
     message
@@ -485,46 +600,43 @@ function setStatus(message) {
     msg;
 
 
-  if (msg === "ON") {
+  if (
+    msg === "ON"
+  ) {
 
     status.className =
       "status on";
 
   }
 
-  else if (msg === "OFF") {
+
+  else if (
+    msg === "OFF"
+  ) {
 
     status.className =
       "status off";
 
   }
 
+
   else {
 
     status.className =
-      "status other";
+      "status";
 
   }
-
-
-  document
-    .getElementById(
-      "lastUpdate"
-    )
-    .textContent =
-    "อัปเดตล่าสุด: " +
-    new Date()
-    .toLocaleString();
 
 }
 
 
 
-/* ================================
+/* =====================================
    CONNECT MQTT
-================================ */
+===================================== */
 
 function connectMQTT() {
+
 
   const username =
     document
@@ -553,13 +665,10 @@ function connectMQTT() {
     );
 
     return;
+
   }
 
 
-
-  /* -------------------------------
-     Close old client
-  -------------------------------- */
 
   if (client) {
 
@@ -569,28 +678,26 @@ function connectMQTT() {
 
     }
 
-    catch (e) {
+    catch(e) {
 
       console.log(e);
 
     }
 
     client = null;
+
   }
+
 
 
   manualDisconnect =
     false;
 
 
+
   setConnection(
     "connecting",
     "Connecting..."
-  );
-
-
-  log(
-    "Connecting HiveMQ..."
   );
 
 
@@ -649,13 +756,12 @@ function connectMQTT() {
 
 
 
-  /* ===========================
-     CONNECTED
-  =========================== */
+  /* CONNECTED */
 
   client.on(
     "connect",
     function() {
+
 
       setConnection(
         "online",
@@ -669,31 +775,22 @@ function connectMQTT() {
 
 
       client.subscribe(
-        STATUS_TOPIC,
-        {
-          qos: 0
-        },
-        function(err) {
+        STATUS_TOPICS[1]
+      );
 
-          if (err) {
 
-            log(
-              "Subscribe Error: " +
-              err.message
-            );
+      client.subscribe(
+        STATUS_TOPICS[2]
+      );
 
-          }
 
-          else {
+      client.subscribe(
+        STATUS_TOPICS[3]
+      );
 
-            log(
-              "Subscribed: " +
-              STATUS_TOPIC
-            );
 
-          }
-
-        }
+      log(
+        "Subscribed Light 1, 2, 3"
       );
 
     }
@@ -701,9 +798,7 @@ function connectMQTT() {
 
 
 
-  /* ===========================
-     MESSAGE RECEIVED
-  =========================== */
+  /* RECEIVE MESSAGE */
 
   client.on(
     "message",
@@ -711,6 +806,7 @@ function connectMQTT() {
       topic,
       payload
     ) {
+
 
       const message =
         payload.toString();
@@ -724,12 +820,42 @@ function connectMQTT() {
       );
 
 
+
       if (
         topic ===
-        STATUS_TOPIC
+        STATUS_TOPICS[1]
       ) {
 
-        setStatus(
+        setLightStatus(
+          1,
+          message
+        );
+
+      }
+
+
+
+      else if (
+        topic ===
+        STATUS_TOPICS[2]
+      ) {
+
+        setLightStatus(
+          2,
+          message
+        );
+
+      }
+
+
+
+      else if (
+        topic ===
+        STATUS_TOPICS[3]
+      ) {
+
+        setLightStatus(
+          3,
           message
         );
 
@@ -740,19 +866,19 @@ function connectMQTT() {
 
 
 
-  /* ===========================
-     RECONNECT
-  =========================== */
+  /* RECONNECT */
 
   client.on(
     "reconnect",
     function() {
+
 
       if (
         manualDisconnect
       ) {
 
         return;
+
       }
 
 
@@ -771,19 +897,19 @@ function connectMQTT() {
 
 
 
-  /* ===========================
-     OFFLINE
-  =========================== */
+  /* OFFLINE */
 
   client.on(
     "offline",
     function() {
+
 
       if (
         manualDisconnect
       ) {
 
         return;
+
       }
 
 
@@ -802,19 +928,19 @@ function connectMQTT() {
 
 
 
-  /* ===========================
-     CONNECTION CLOSED
-  =========================== */
+  /* CLOSE */
 
   client.on(
     "close",
     function() {
+
 
       if (
         manualDisconnect
       ) {
 
         return;
+
       }
 
 
@@ -823,27 +949,20 @@ function connectMQTT() {
         "Reconnecting..."
       );
 
-
-      log(
-        "MQTT Connection Closed"
-      );
-
     }
   );
 
 
 
-  /* ===========================
-     MQTT ERROR
-  =========================== */
+  /* ERROR */
 
   client.on(
     "error",
-    function(err) {
+    function(error) {
+
 
       console.log(
-        "MQTT Error",
-        err
+        error
       );
 
 
@@ -852,6 +971,7 @@ function connectMQTT() {
       ) {
 
         return;
+
       }
 
 
@@ -863,7 +983,7 @@ function connectMQTT() {
 
       log(
         "MQTT Error: " +
-        err.message
+        error.message
       );
 
     }
@@ -873,11 +993,12 @@ function connectMQTT() {
 
 
 
-/* ================================
-   DISCONNECT MQTT
-================================ */
+/* =====================================
+   DISCONNECT
+===================================== */
 
 function disconnectMQTT() {
+
 
   manualDisconnect =
     true;
@@ -885,19 +1006,9 @@ function disconnectMQTT() {
 
   if (client) {
 
-    try {
-
-      client.end(
-        true
-      );
-
-    }
-
-    catch (e) {
-
-      console.log(e);
-
-    }
+    client.end(
+      true
+    );
 
 
     client =
@@ -913,20 +1024,22 @@ function disconnectMQTT() {
 
 
   log(
-    "Disconnected manually"
+    "Disconnected"
   );
 
 }
 
 
 
-/* ================================
+/* =====================================
    SEND COMMAND
-================================ */
+===================================== */
 
 function sendCommand(
+  lightNumber,
   command
 ) {
+
 
   if (
     !client ||
@@ -938,38 +1051,41 @@ function sendCommand(
     );
 
     return;
+
   }
 
 
+  const topic =
+    COMMAND_TOPICS[
+      lightNumber
+    ];
+
+
   client.publish(
-    COMMAND_TOPIC,
+    topic,
     command,
     {
-
-      qos:
-        0,
-
-      retain:
-        false
-
+      qos: 0,
+      retain: false
     },
+    function(error) {
 
-    function(err) {
 
-      if (err) {
+      if (error) {
 
         log(
           "Publish Error: " +
-          err.message
+          error.message
         );
 
       }
 
+
       else {
 
         log(
-          "TX " +
-          COMMAND_TOPIC +
+          "TX Light " +
+          lightNumber +
           " : " +
           command
         );
@@ -983,16 +1099,18 @@ function sendCommand(
 
 
 
-/* ================================
-   START PAGE
-================================ */
+/* =====================================
+   START
+===================================== */
 
 setConnection(
   "offline",
   "Disconnected"
 );
 
+
 </script>
+
 
 </body>
 
