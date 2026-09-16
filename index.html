@@ -1,431 +1,763 @@
 <!DOCTYPE html>
+
 <html lang="th">
+
 <head>
-  <meta charset="UTF-8">
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-  <title>ESP32 3 Output Control</title>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0">
 
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<title>
+ESP32 Control
+</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
 
-    body {
-      margin: 0;
-      padding: 25px 15px;
-      font-family: Arial, Tahoma, sans-serif;
-      background: #0f172a;
-      color: white;
-    }
+<script
+src="https://unpkg.com/mqtt/dist/mqtt.min.js">
+</script>
 
-    .container {
-      max-width: 500px;
-      margin: auto;
-    }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 5px;
-    }
+<style>
 
-    .subtitle {
-      text-align: center;
-      color: #94a3b8;
-      margin-bottom: 25px;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 18px;
-      padding: 20px;
-      margin-bottom: 15px;
-    }
 
-    .connection-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+body {
 
-    .label {
-      color: #94a3b8;
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
+  margin: 0;
 
-    .connection {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: bold;
-    }
+  padding: 25px 15px;
 
-    .dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      background: #64748b;
-    }
+  font-family:
+  Arial,
+  Tahoma,
+  sans-serif;
 
-    .dot.online {
-      background: #22c55e;
-    }
+  background:
+  #0f172a;
 
-    .dot.offline {
-      background: #ef4444;
-    }
+  color:
+  white;
 
-    .dot.connecting {
-      background: #f59e0b;
-    }
+}
 
-    .light-row {
-      display: grid;
-      grid-template-columns: 1fr 90px 140px;
-      align-items: center;
-      gap: 12px;
-    }
 
-    .light-name {
-      font-size: 20px;
-      font-weight: bold;
-    }
+.container {
 
-    .status {
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      color: #94a3b8;
-    }
+  max-width:
+  500px;
 
-    .status.on {
-      color: #22c55e;
-    }
+  margin:
+  auto;
 
-    .status.off {
-      color: #ef4444;
-    }
+}
 
-    .toggle-btn {
-      border: none;
-      border-radius: 14px;
-      padding: 16px 10px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      background: #475569;
-      color: white;
-      transition: 0.2s;
-    }
 
-    .toggle-btn.on {
-      background: #22c55e;
-    }
+h1 {
 
-    .toggle-btn.off {
-      background: #ef4444;
-    }
+  text-align:
+  center;
 
-    .toggle-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+  margin-bottom:
+  5px;
 
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 10px;
-      border-radius: 12px;
-      border: 1px solid #475569;
-      background: #0f172a;
-      color: white;
-      font-size: 16px;
-    }
+}
 
-    input:focus {
-      outline: none;
-      border-color: #3b82f6;
-    }
 
-    .btn-connect {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-size: 18px;
-      font-weight: bold;
-      background: #3b82f6;
-      color: white;
-      cursor: pointer;
-    }
+.subtitle {
 
-    .btn-disconnect {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      margin-top: 10px;
-      font-size: 18px;
-      font-weight: bold;
-      background: #475569;
-      color: white;
-      cursor: pointer;
-    }
+  text-align:
+  center;
 
-    .btn-connect:disabled,
-    .btn-disconnect:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+  color:
+  #94a3b8;
 
-    .log {
-      background: #0f172a;
-      padding: 12px;
-      border-radius: 12px;
-      min-height: 90px;
-      font-family: Consolas, monospace;
-      font-size: 12px;
-      color: #cbd5e1;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
+  margin-bottom:
+  25px;
 
-    @media (max-width: 450px) {
-      .light-row {
-        grid-template-columns: 1fr 70px 120px;
-      }
+}
 
-      .light-name {
-        font-size: 17px;
-      }
 
-      .toggle-btn {
-        font-size: 16px;
-      }
-    }
-  </style>
+.card {
+
+  background:
+  #1e293b;
+
+  border:
+  1px solid #334155;
+
+  border-radius:
+  18px;
+
+  padding:
+  20px;
+
+  margin-bottom:
+  15px;
+
+}
+
+
+.connection-row {
+
+  display:
+  flex;
+
+  justify-content:
+  space-between;
+
+  align-items:
+  center;
+
+}
+
+
+.label {
+
+  color:
+  #94a3b8;
+
+  font-size:
+  13px;
+
+  margin-bottom:
+  8px;
+
+}
+
+
+.connection {
+
+  display:
+  flex;
+
+  align-items:
+  center;
+
+  gap:
+  8px;
+
+  font-weight:
+  bold;
+
+}
+
+
+.dot {
+
+  width:
+  11px;
+
+  height:
+  11px;
+
+  border-radius:
+  50%;
+
+  background:
+  #64748b;
+
+}
+
+
+.dot.online {
+
+  background:
+  #22c55e;
+
+}
+
+
+.dot.offline {
+
+  background:
+  #ef4444;
+
+}
+
+
+.dot.connecting {
+
+  background:
+  #f59e0b;
+
+}
+
+
+/* OUTPUT */
+
+.light-row {
+
+  display:
+  grid;
+
+  grid-template-columns:
+  1fr 80px 145px;
+
+  gap:
+  10px;
+
+  align-items:
+  center;
+
+}
+
+
+.light-name {
+
+  font-size:
+  20px;
+
+  font-weight:
+  bold;
+
+}
+
+
+.status {
+
+  text-align:
+  center;
+
+  font-size:
+  20px;
+
+  font-weight:
+  bold;
+
+  color:
+  #94a3b8;
+
+}
+
+
+.status.on {
+
+  color:
+  #22c55e;
+
+}
+
+
+.status.off {
+
+  color:
+  #ef4444;
+
+}
+
+
+/* BUTTON */
+
+.toggle-button {
+
+  border:
+  none;
+
+  border-radius:
+  14px;
+
+  padding:
+  16px 10px;
+
+  font-size:
+  17px;
+
+  font-weight:
+  bold;
+
+  cursor:
+  pointer;
+
+  background:
+  #475569;
+
+  color:
+  white;
+
+}
+
+
+.toggle-button.turn-on {
+
+  background:
+  #22c55e;
+
+}
+
+
+.toggle-button.turn-off {
+
+  background:
+  #ef4444;
+
+}
+
+
+.toggle-button:disabled {
+
+  opacity:
+  0.4;
+
+  cursor:
+  not-allowed;
+
+}
+
+
+/* LOGIN */
+
+input {
+
+  width:
+  100%;
+
+  padding:
+  14px;
+
+  margin-bottom:
+  10px;
+
+  border-radius:
+  12px;
+
+  border:
+  1px solid #475569;
+
+  background:
+  #0f172a;
+
+  color:
+  white;
+
+  font-size:
+  16px;
+
+}
+
+
+.connect-button {
+
+  width:
+  100%;
+
+  border:
+  none;
+
+  border-radius:
+  14px;
+
+  padding:
+  16px;
+
+  font-size:
+  18px;
+
+  font-weight:
+  bold;
+
+  background:
+  #3b82f6;
+
+  color:
+  white;
+
+  cursor:
+  pointer;
+
+}
+
+
+.disconnect-button {
+
+  width:
+  100%;
+
+  border:
+  none;
+
+  border-radius:
+  14px;
+
+  padding:
+  16px;
+
+  margin-top:
+  10px;
+
+  font-size:
+  18px;
+
+  font-weight:
+  bold;
+
+  background:
+  #475569;
+
+  color:
+  white;
+
+  cursor:
+  pointer;
+
+}
+
+
+button:disabled {
+
+  opacity:
+  0.4;
+
+}
+
+
+.log {
+
+  background:
+  #0f172a;
+
+  padding:
+  12px;
+
+  border-radius:
+  12px;
+
+  min-height:
+  100px;
+
+  font-family:
+  Consolas,
+  monospace;
+
+  font-size:
+  12px;
+
+  color:
+  #cbd5e1;
+
+  white-space:
+  pre-wrap;
+
+  overflow-wrap:
+  anywhere;
+
+}
+
+
+@media
+(max-width: 450px) {
+
+  .light-row {
+
+    grid-template-columns:
+    1fr 60px 120px;
+
+  }
+
+
+  .light-name {
+
+    font-size:
+    17px;
+
+  }
+
+
+  .toggle-button {
+
+    font-size:
+    14px;
+
+  }
+
+}
+
+</style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-  <h1>ESP32 CONTROL</h1>
 
-  <div class="subtitle">
-    3 Independent Outputs
-  </div>
-
-
-  <!-- MQTT CONNECTION -->
-
-  <div class="card">
-
-    <div class="connection-row">
-
-      <div>
-
-        <div class="label">
-          MQTT CONNECTION
-        </div>
-
-        <div class="connection">
-
-          <span
-            id="connDot"
-            class="dot">
-          </span>
-
-          <span id="connText">
-            Disconnected
-          </span>
-
-        </div>
-
-      </div>
+<h1>
+ESP32 CONTROL
+</h1>
 
 
-      <div style="text-align:right">
-
-        <div class="label">
-          DEVICE
-        </div>
-
-        <strong>
-          ESP01
-        </strong>
-
-      </div>
-
-    </div>
-
-  </div>
+<div class="subtitle">
+3 Independent Outputs
+</div>
 
 
-  <!-- LIGHT 1 -->
 
-  <div class="card">
+<!-- CONNECTION -->
 
-    <div class="light-row">
-
-      <div class="light-name">
-        LIGHT 1
-      </div>
-
-      <div
-        id="status1"
-        class="status">
-        ---
-      </div>
-
-      <button
-        id="button1"
-        class="toggle-btn controlButton"
-        onclick="toggleLight(1)"
-        disabled>
-        ON / OFF
-      </button>
-
-    </div>
-
-  </div>
+<div class="card">
 
 
-  <!-- LIGHT 2 -->
-
-  <div class="card">
-
-    <div class="light-row">
-
-      <div class="light-name">
-        LIGHT 2
-      </div>
-
-      <div
-        id="status2"
-        class="status">
-        ---
-      </div>
-
-      <button
-        id="button2"
-        class="toggle-btn controlButton"
-        onclick="toggleLight(2)"
-        disabled>
-        ON / OFF
-      </button>
-
-    </div>
-
-  </div>
+<div class="connection-row">
 
 
-  <!-- LIGHT 3 -->
+<div>
 
-  <div class="card">
-
-    <div class="light-row">
-
-      <div class="light-name">
-        LIGHT 3
-      </div>
-
-      <div
-        id="status3"
-        class="status">
-        ---
-      </div>
-
-      <button
-        id="button3"
-        class="toggle-btn controlButton"
-        onclick="toggleLight(3)"
-        disabled>
-        ON / OFF
-      </button>
-
-    </div>
-
-  </div>
+<div class="label">
+MQTT CONNECTION
+</div>
 
 
-  <!-- LOGIN -->
+<div class="connection">
 
-  <div class="card">
-
-    <div class="label">
-      MQTT LOGIN
-    </div>
-
-    <input
-      id="username"
-      type="text"
-      value="esp01"
-      placeholder="Username">
-
-    <input
-      id="password"
-      type="password"
-      placeholder="HiveMQ Password">
-
-    <button
-      id="connectBtn"
-      class="btn-connect"
-      onclick="connectMQTT()">
-      Connect
-    </button>
-
-    <button
-      id="disconnectBtn"
-      class="btn-disconnect"
-      onclick="disconnectMQTT()"
-      disabled>
-      Disconnect
-    </button>
-
-  </div>
+<span
+id="connDot"
+class="dot">
+</span>
 
 
-  <!-- LOG -->
+<span id="connText">
+Disconnected
+</span>
 
-  <div class="card">
-
-    <div class="label">
-      SYSTEM LOG
-    </div>
-
-    <div
-      id="log"
-      class="log">
-      Ready.
-    </div>
-
-  </div>
+</div>
 
 </div>
 
 
+<div style="text-align:right">
+
+<div class="label">
+DEVICE
+</div>
+
+<strong>
+ESP01
+</strong>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- LIGHT 1 -->
+
+<div class="card">
+
+
+<div class="light-row">
+
+
+<div class="light-name">
+LIGHT 1
+</div>
+
+
+<div
+id="status1"
+class="status">
+---
+</div>
+
+
+<button
+id="button1"
+class="toggle-button control-button"
+onclick="toggleLight(1)"
+disabled>
+
+WAIT
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- LIGHT 2 -->
+
+<div class="card">
+
+
+<div class="light-row">
+
+
+<div class="light-name">
+LIGHT 2
+</div>
+
+
+<div
+id="status2"
+class="status">
+---
+</div>
+
+
+<button
+id="button2"
+class="toggle-button control-button"
+onclick="toggleLight(2)"
+disabled>
+
+WAIT
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- LIGHT 3 -->
+
+<div class="card">
+
+
+<div class="light-row">
+
+
+<div class="light-name">
+LIGHT 3
+</div>
+
+
+<div
+id="status3"
+class="status">
+---
+</div>
+
+
+<button
+id="button3"
+class="toggle-button control-button"
+onclick="toggleLight(3)"
+disabled>
+
+WAIT
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- LOGIN -->
+
+<div class="card">
+
+
+<div class="label">
+MQTT LOGIN
+</div>
+
+
+<input
+id="username"
+type="text"
+value="esp01"
+placeholder="Username">
+
+
+<input
+id="password"
+type="password"
+placeholder="HiveMQ Password">
+
+
+<button
+id="connectButton"
+class="connect-button"
+onclick="connectMQTT()">
+
+Connect
+
+</button>
+
+
+<button
+id="disconnectButton"
+class="disconnect-button"
+onclick="disconnectMQTT()"
+disabled>
+
+Disconnect
+
+</button>
+
+
+</div>
+
+
+
+<!-- LOG -->
+
+<div class="card">
+
+
+<div class="label">
+SYSTEM LOG
+</div>
+
+
+<div
+id="log"
+class="log">
+
+Ready.
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
 <script>
 
-/* ==============================
-   HiveMQ
-============================== */
+
+// =====================================================
+// HIVEMQ
+// =====================================================
 
 const MQTT_HOST =
 "380dfaf330224340913625c3fd2802b8.s1.eu.hivemq.cloud";
 
-const MQTT_PORT = 8884;
+
+const MQTT_PORT =
+8884;
 
 
-/* ==============================
-   MQTT TOPIC
-============================== */
+
+// =====================================================
+// TOPICS
+// =====================================================
 
 const COMMAND_TOPICS = {
 
@@ -455,142 +787,141 @@ const STATUS_TOPICS = {
 };
 
 
-/* ==============================
-   VARIABLES
-============================== */
 
-let client = null;
+// =====================================================
+// VARIABLES
+// =====================================================
 
-let manualDisconnect = false;
+let client =
+null;
 
 
-/*
-สถานะที่หน้าเว็บได้รับจริง
-จาก ESP32
-*/
+let manualDisconnect =
+false;
+
 
 let lightState = {
 
-  1: null,
+  1:
+  null,
 
-  2: null,
+  2:
+  null,
 
-  3: null
+  3:
+  null
 
 };
 
 
-/* ==============================
-   LOG
-============================== */
 
-function log(message) {
+// =====================================================
+// LOG
+// =====================================================
+
+function log(
+  message
+) {
+
 
   const time =
-    new Date()
-    .toLocaleTimeString();
+  new Date()
+  .toLocaleTimeString();
 
 
-  const logBox =
-    document
-    .getElementById("log");
+  const box =
+  document
+  .getElementById(
+    "log"
+  );
 
 
-  logBox.textContent =
-    "[" +
-    time +
-    "] " +
-    message +
-    "\n" +
-    logBox.textContent;
+  box.textContent =
+
+  "[" +
+  time +
+  "] " +
+  message +
+  "\n" +
+  box.textContent;
 
 }
 
 
-/* ==============================
-   MQTT STATUS
-============================== */
+
+// =====================================================
+// CONNECTION DISPLAY
+// =====================================================
 
 function setConnection(
   state,
   text
 ) {
 
+
   const dot =
-    document
-    .getElementById(
-      "connDot"
-    );
-
-
-  const label =
-    document
-    .getElementById(
-      "connText"
-    );
-
-
-  dot.className =
-    "dot " + state;
-
-
-  label.textContent =
-    text;
-
-
-  const connected =
-    state === "online";
-
-
-  const buttons =
-    document
-    .querySelectorAll(
-      ".controlButton"
-    );
-
-
-  buttons.forEach(
-    function(button) {
-
-      button.disabled =
-        !connected;
-
-    }
+  document
+  .getElementById(
+    "connDot"
   );
 
 
+  const label =
   document
-    .getElementById(
-      "connectBtn"
-    )
-    .disabled =
-    connected ||
-    state === "connecting";
+  .getElementById(
+    "connText"
+  );
+
+
+  dot.className =
+  "dot " +
+  state;
+
+
+  label.textContent =
+  text;
 
 
   document
-    .getElementById(
-      "disconnectBtn"
-    )
-    .disabled =
-    !connected;
+  .getElementById(
+    "connectButton"
+  )
+  .disabled =
+
+  state ===
+  "online" ||
+
+  state ===
+  "connecting";
+
+
+  document
+  .getElementById(
+    "disconnectButton"
+  )
+  .disabled =
+
+  state !==
+  "online";
 
 }
 
 
-/* ==============================
-   DISPLAY LIGHT STATUS
-============================== */
+
+// =====================================================
+// STATUS DISPLAY
+// =====================================================
 
 function setLightStatus(
-  lightNumber,
+  number,
   message
 ) {
 
+
   const msg =
-    message
-    .trim()
-    .toUpperCase();
+  message
+  .trim()
+  .toUpperCase();
 
 
   if (
@@ -604,84 +935,96 @@ function setLightStatus(
 
 
   lightState[
-    lightNumber
-  ] = msg;
+    number
+  ] =
+  msg;
 
 
   const status =
-    document
-    .getElementById(
-      "status" +
-      lightNumber
-    );
+  document
+  .getElementById(
+    "status" +
+    number
+  );
 
 
   const button =
-    document
-    .getElementById(
-      "button" +
-      lightNumber
-    );
+  document
+  .getElementById(
+    "button" +
+    number
+  );
 
 
   status.textContent =
-    msg;
+  msg;
+
+
+  button.disabled =
+  false;
 
 
   if (
     msg === "ON"
   ) {
 
+
     status.className =
-      "status on";
+    "status on";
+
 
     button.className =
-      "toggle-btn controlButton on";
+    "toggle-button control-button turn-off";
+
 
     button.textContent =
-      "TURN OFF";
+    "TURN OFF";
 
   }
 
 
   else {
 
+
     status.className =
-      "status off";
+    "status off";
+
 
     button.className =
-      "toggle-btn controlButton off";
+    "toggle-button control-button turn-on";
+
 
     button.textContent =
-      "TURN ON";
+    "TURN ON";
 
   }
 
 }
 
 
-/* ==============================
-   CONNECT MQTT
-============================== */
+
+// =====================================================
+// CONNECT MQTT
+// =====================================================
 
 function connectMQTT() {
 
 
   const username =
-    document
-    .getElementById(
-      "username"
-    )
-    .value
-    .trim();
+  document
+  .getElementById(
+    "username"
+  )
+  .value
+  .trim();
 
 
   const password =
-    document
-    .getElementById(
-      "password"
-    )
-    .value;
+  document
+  .getElementById(
+    "password"
+  )
+  .value;
 
 
   if (
@@ -689,42 +1032,43 @@ function connectMQTT() {
     !password
   ) {
 
+
     alert(
-      "กรุณาใส่ Username และ Password"
+      "กรุณากรอก Username และ Password"
     );
+
 
     return;
 
   }
 
 
-  /*
-  ปิด Client ตัวเก่า
-  */
 
-  if (client) {
+  if (
+    client
+  ) {
+
 
     try {
 
-      client.end(true);
+      client.end(
+        true
+      );
 
     }
 
-    catch(e) {
-
-      console.log(e);
-
-    }
+    catch(e) {}
 
 
     client =
-      null;
+    null;
 
   }
 
 
+
   manualDisconnect =
-    false;
+  false;
 
 
   setConnection(
@@ -738,61 +1082,68 @@ function connectMQTT() {
   );
 
 
+
   const url =
-    "wss://" +
-    MQTT_HOST +
-    ":" +
-    MQTT_PORT +
-    "/mqtt";
+
+  "wss://" +
+  MQTT_HOST +
+  ":" +
+  MQTT_PORT +
+  "/mqtt";
+
 
 
   client =
-    mqtt.connect(
-      url,
-      {
-
-        username:
-          username,
-
-        password:
-          password,
+  mqtt.connect(
+    url,
+    {
 
 
-        clientId:
-          "ESP32WEB_" +
-          Date.now() +
-          "_" +
-          Math.random()
-          .toString(16)
-          .slice(2,8),
+      username:
+      username,
 
 
-        clean:
-          true,
+      password:
+      password,
 
 
-        keepalive:
-          30,
+      clientId:
+
+      "WEB_" +
+      Date.now() +
+      "_" +
+      Math.random()
+      .toString(16)
+      .slice(2,8),
 
 
-        connectTimeout:
-          15000,
+      clean:
+      true,
 
 
-        reconnectPeriod:
-          5000,
+      keepalive:
+      30,
 
 
-        resubscribe:
-          true
-
-      }
-    );
+      connectTimeout:
+      15000,
 
 
-  /* =========================
-     CONNECTED
-  ========================= */
+      reconnectPeriod:
+      5000,
+
+
+      resubscribe:
+      true
+
+    }
+  );
+
+
+
+  // =================================================
+  // CONNECT
+  // =================================================
 
   client.on(
     "connect",
@@ -810,24 +1161,27 @@ function connectMQTT() {
       );
 
 
-      /*
-      Subscribe Status
-      ของทั้ง 3 Outputs
-      */
 
       client.subscribe(
+
         [
           STATUS_TOPICS[1],
           STATUS_TOPICS[2],
           STATUS_TOPICS[3]
         ],
+
         {
-          qos: 0
+          qos:
+          0
         },
+
         function(error) {
 
 
-          if (error) {
+          if (
+            error
+          ) {
+
 
             log(
               "Subscribe Error: " +
@@ -839,22 +1193,26 @@ function connectMQTT() {
 
           else {
 
+
             log(
-              "Subscribed Light 1, 2, 3"
+              "Subscribed LIGHT 1 / 2 / 3"
             );
 
           }
 
         }
+
       );
 
     }
+
   );
 
 
-  /* =========================
-     RECEIVE MQTT
-  ========================= */
+
+  // =================================================
+  // RECEIVE MESSAGE
+  // =================================================
 
   client.on(
     "message",
@@ -865,21 +1223,25 @@ function connectMQTT() {
 
 
       const message =
-        payload.toString();
+      payload.toString();
 
 
       log(
+
         "RX " +
         topic +
-        " : " +
+        " = " +
         message
+
       );
+
 
 
       if (
         topic ===
         STATUS_TOPICS[1]
       ) {
+
 
         setLightStatus(
           1,
@@ -889,10 +1251,12 @@ function connectMQTT() {
       }
 
 
+
       else if (
         topic ===
         STATUS_TOPICS[2]
       ) {
+
 
         setLightStatus(
           2,
@@ -902,10 +1266,12 @@ function connectMQTT() {
       }
 
 
+
       else if (
         topic ===
         STATUS_TOPICS[3]
       ) {
+
 
         setLightStatus(
           3,
@@ -915,12 +1281,14 @@ function connectMQTT() {
       }
 
     }
+
   );
 
 
-  /* =========================
-     RECONNECT
-  ========================= */
+
+  // =================================================
+  // RECONNECT
+  // =================================================
 
   client.on(
     "reconnect",
@@ -943,16 +1311,18 @@ function connectMQTT() {
 
 
       log(
-        "MQTT Reconnecting..."
+        "Reconnecting..."
       );
 
     }
+
   );
 
 
-  /* =========================
-     OFFLINE
-  ========================= */
+
+  // =================================================
+  // OFFLINE
+  // =================================================
 
   client.on(
     "offline",
@@ -973,69 +1343,19 @@ function connectMQTT() {
         "Reconnecting..."
       );
 
-
-      log(
-        "MQTT Offline"
-      );
-
     }
+
   );
 
 
-  /* =========================
-     CLOSE
-  ========================= */
 
-  client.on(
-    "close",
-    function() {
-
-
-      if (
-        manualDisconnect
-      ) {
-
-        return;
-
-      }
-
-
-      setConnection(
-        "connecting",
-        "Reconnecting..."
-      );
-
-    }
-  );
-
-
-  /* =========================
-     ERROR
-  ========================= */
+  // =================================================
+  // ERROR
+  // =================================================
 
   client.on(
     "error",
     function(error) {
-
-
-      console.log(
-        error
-      );
-
-
-      if (
-        manualDisconnect
-      ) {
-
-        return;
-
-      }
-
-
-      setConnection(
-        "connecting",
-        "Reconnecting..."
-      );
 
 
       log(
@@ -1043,24 +1363,42 @@ function connectMQTT() {
         error.message
       );
 
+
+      if (
+        !manualDisconnect
+      ) {
+
+
+        setConnection(
+          "connecting",
+          "Reconnecting..."
+        );
+
+      }
+
     }
+
   );
 
 }
 
 
-/* ==============================
-   DISCONNECT
-============================== */
+
+// =====================================================
+// DISCONNECT
+// =====================================================
 
 function disconnectMQTT() {
 
 
   manualDisconnect =
-    true;
+  true;
 
 
-  if (client) {
+  if (
+    client
+  ) {
+
 
     client.end(
       true
@@ -1068,7 +1406,7 @@ function disconnectMQTT() {
 
 
     client =
-      null;
+    null;
 
   }
 
@@ -1086,12 +1424,13 @@ function disconnectMQTT() {
 }
 
 
-/* ==============================
-   TOGGLE OUTPUT
-============================== */
+
+// =====================================================
+// TOGGLE LIGHT
+// =====================================================
 
 function toggleLight(
-  lightNumber
+  number
 ) {
 
 
@@ -1100,67 +1439,68 @@ function toggleLight(
     !client.connected
   ) {
 
+
     alert(
       "MQTT ยังไม่ได้เชื่อมต่อ"
     );
 
+
     return;
 
   }
 
 
-  /*
-  ต้องรู้สถานะจริงก่อน
-  */
 
   if (
     lightState[
-      lightNumber
+      number
     ] === null
   ) {
 
+
     alert(
-      "ยังไม่ได้รับสถานะของ LIGHT " +
-      lightNumber +
-      " จาก ESP32"
+      "ยังไม่ได้รับสถานะจาก ESP32"
     );
+
 
     return;
 
   }
 
 
-  /*
-  ถ้าปัจจุบัน ON
-  ส่ง OFF
-
-  ถ้าปัจจุบัน OFF
-  ส่ง ON
-  */
 
   const command =
 
-    lightState[
-      lightNumber
-    ] === "ON"
+  lightState[
+    number
+  ] === "ON"
 
-    ? "OFF"
+  ?
 
-    : "ON";
+  "OFF"
+
+  :
+
+  "ON";
+
 
 
   const topic =
-    COMMAND_TOPICS[
-      lightNumber
-    ];
+  COMMAND_TOPICS[
+    number
+  ];
+
 
 
   log(
-    "TX Light " +
-    lightNumber +
-    " : " +
+
+    "TX LIGHT " +
+    number +
+    " = " +
     command
+
   );
+
 
 
   client.publish(
@@ -1169,17 +1509,20 @@ function toggleLight(
     {
 
       qos:
-        0,
+      0,
 
       retain:
-        false
+      false
 
     },
 
     function(error) {
 
 
-      if (error) {
+      if (
+        error
+      ) {
+
 
         log(
           "Publish Error: " +
@@ -1189,21 +1532,26 @@ function toggleLight(
       }
 
     }
+
   );
 
 }
 
 
-/* ==============================
-   START
-============================== */
+
+// =====================================================
+// START
+// =====================================================
 
 setConnection(
   "offline",
   "Disconnected"
 );
 
+
 </script>
 
+
 </body>
+
 </html>
