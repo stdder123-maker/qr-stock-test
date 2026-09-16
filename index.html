@@ -7,18 +7,14 @@
 <meta charset="UTF-8">
 
 <meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0">
+name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>
 ESP32 Control
 </title>
 
-
-<script
-src="https://unpkg.com/mqtt/dist/mqtt.min.js">
-</script>
-
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <style>
 
@@ -26,503 +22,360 @@ src="https://unpkg.com/mqtt/dist/mqtt.min.js">
   box-sizing: border-box;
 }
 
-
 body {
 
   margin: 0;
 
   padding: 25px 15px;
 
-  font-family:
-  Arial,
-  Tahoma,
-  sans-serif;
+  font-family: Arial, Tahoma, sans-serif;
 
-  background:
-  #0f172a;
+  background: #0f172a;
 
-  color:
-  white;
-
+  color: white;
 }
-
 
 .container {
 
-  max-width:
-  500px;
+  max-width: 520px;
 
-  margin:
-  auto;
-
+  margin: auto;
 }
-
 
 h1 {
 
-  text-align:
-  center;
+  text-align: center;
 
-  margin-bottom:
-  5px;
-
+  margin-bottom: 5px;
 }
-
 
 .subtitle {
 
-  text-align:
-  center;
+  text-align: center;
 
-  color:
-  #94a3b8;
+  color: #94a3b8;
 
-  margin-bottom:
-  25px;
-
+  margin-bottom: 25px;
 }
-
 
 .card {
 
-  background:
-  #1e293b;
+  background: #1e293b;
 
-  border:
-  1px solid #334155;
+  border: 1px solid #334155;
 
-  border-radius:
-  18px;
+  border-radius: 18px;
 
-  padding:
-  20px;
+  padding: 20px;
 
-  margin-bottom:
-  15px;
-
+  margin-bottom: 15px;
 }
-
-
-.connection-row {
-
-  display:
-  flex;
-
-  justify-content:
-  space-between;
-
-  align-items:
-  center;
-
-}
-
 
 .label {
 
-  color:
-  #94a3b8;
+  color: #94a3b8;
 
-  font-size:
-  13px;
+  font-size: 13px;
 
-  margin-bottom:
-  8px;
-
+  margin-bottom: 8px;
 }
 
+/* STATUS */
 
-.connection {
+.status-grid {
 
-  display:
-  flex;
+  display: grid;
 
-  align-items:
-  center;
+  grid-template-columns: 1fr 1fr;
 
-  gap:
-  8px;
-
-  font-weight:
-  bold;
-
+  gap: 15px;
 }
 
+.status-item {
+
+  background: #0f172a;
+
+  border-radius: 12px;
+
+  padding: 13px;
+}
 
 .dot {
 
-  width:
-  11px;
+  display: inline-block;
 
-  height:
-  11px;
+  width: 11px;
 
-  border-radius:
-  50%;
+  height: 11px;
 
-  background:
-  #64748b;
+  border-radius: 50%;
 
+  margin-right: 7px;
+
+  background: #64748b;
 }
 
+.dot.green {
 
-.dot.online {
-
-  background:
-  #22c55e;
-
+  background: #22c55e;
 }
 
+.dot.red {
 
-.dot.offline {
-
-  background:
-  #ef4444;
-
+  background: #ef4444;
 }
 
+.dot.orange {
 
-.dot.connecting {
-
-  background:
-  #f59e0b;
-
+  background: #f59e0b;
 }
 
+/* MODE */
 
-/* OUTPUT */
+.mode-buttons {
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+.mode-button {
+
+  border: none;
+
+  border-radius: 14px;
+
+  padding: 17px;
+
+  font-size: 18px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  background: #475569;
+
+  color: white;
+}
+
+.mode-button.auto-active {
+
+  background: #3b82f6;
+}
+
+.mode-button.manual-active {
+
+  background: #22c55e;
+}
+
+.mode-status {
+
+  margin-top: 15px;
+
+  text-align: center;
+
+  font-size: 20px;
+
+  font-weight: bold;
+}
+
+/* LIGHT */
 
 .light-row {
 
-  display:
-  grid;
+  display: grid;
 
-  grid-template-columns:
-  1fr 80px 145px;
+  grid-template-columns: 1fr 75px 145px;
 
-  gap:
-  10px;
+  align-items: center;
 
-  align-items:
-  center;
-
+  gap: 10px;
 }
-
 
 .light-name {
 
-  font-size:
-  20px;
+  font-size: 19px;
 
-  font-weight:
-  bold;
-
+  font-weight: bold;
 }
 
+.light-status {
 
-.status {
+  text-align: center;
 
-  text-align:
-  center;
+  font-weight: bold;
 
-  font-size:
-  20px;
-
-  font-weight:
-  bold;
-
-  color:
-  #94a3b8;
-
+  font-size: 19px;
 }
 
+.light-status.on {
 
-.status.on {
-
-  color:
-  #22c55e;
-
+  color: #22c55e;
 }
 
+.light-status.off {
 
-.status.off {
-
-  color:
-  #ef4444;
-
+  color: #ef4444;
 }
 
+.light-button {
 
-/* BUTTON */
+  border: none;
 
-.toggle-button {
+  border-radius: 14px;
 
-  border:
-  none;
+  padding: 15px 8px;
 
-  border-radius:
-  14px;
+  font-weight: bold;
 
-  padding:
-  16px 10px;
+  font-size: 16px;
 
-  font-size:
-  17px;
-
-  font-weight:
-  bold;
-
-  cursor:
-  pointer;
-
-  background:
-  #475569;
-
-  color:
-  white;
-
+  cursor: pointer;
 }
 
+.light-button.turn-on {
 
-.toggle-button.turn-on {
+  background: #22c55e;
 
-  background:
-  #22c55e;
-
+  color: white;
 }
 
+.light-button.turn-off {
 
-.toggle-button.turn-off {
+  background: #ef4444;
 
-  background:
-  #ef4444;
-
+  color: white;
 }
 
+.light-button:disabled {
 
-.toggle-button:disabled {
+  background: #475569;
 
-  opacity:
-  0.4;
+  color: #94a3b8;
 
-  cursor:
-  not-allowed;
-
+  cursor: not-allowed;
 }
-
 
 /* LOGIN */
 
 input {
 
-  width:
-  100%;
+  width: 100%;
 
-  padding:
-  14px;
+  padding: 14px;
 
-  margin-bottom:
-  10px;
+  margin-bottom: 10px;
 
-  border-radius:
-  12px;
+  border-radius: 12px;
 
-  border:
-  1px solid #475569;
+  border: 1px solid #475569;
 
-  background:
-  #0f172a;
+  background: #0f172a;
 
-  color:
-  white;
+  color: white;
 
-  font-size:
-  16px;
-
+  font-size: 16px;
 }
 
+.connect-button,
+.disconnect-button {
+
+  width: 100%;
+
+  border: none;
+
+  border-radius: 14px;
+
+  padding: 15px;
+
+  font-weight: bold;
+
+  font-size: 17px;
+
+  color: white;
+
+  cursor: pointer;
+}
 
 .connect-button {
 
-  width:
-  100%;
-
-  border:
-  none;
-
-  border-radius:
-  14px;
-
-  padding:
-  16px;
-
-  font-size:
-  18px;
-
-  font-weight:
-  bold;
-
-  background:
-  #3b82f6;
-
-  color:
-  white;
-
-  cursor:
-  pointer;
-
+  background: #3b82f6;
 }
-
 
 .disconnect-button {
 
-  width:
-  100%;
+  margin-top: 10px;
 
-  border:
-  none;
-
-  border-radius:
-  14px;
-
-  padding:
-  16px;
-
-  margin-top:
-  10px;
-
-  font-size:
-  18px;
-
-  font-weight:
-  bold;
-
-  background:
-  #475569;
-
-  color:
-  white;
-
-  cursor:
-  pointer;
-
+  background: #475569;
 }
-
-
-button:disabled {
-
-  opacity:
-  0.4;
-
-}
-
 
 .log {
 
-  background:
-  #0f172a;
+  background: #0f172a;
 
-  padding:
-  12px;
+  padding: 12px;
 
-  border-radius:
-  12px;
+  border-radius: 12px;
 
-  min-height:
-  100px;
+  min-height: 90px;
 
-  font-family:
-  Consolas,
-  monospace;
+  font-family: Consolas, monospace;
 
-  font-size:
-  12px;
+  font-size: 12px;
 
-  color:
-  #cbd5e1;
+  color: #cbd5e1;
 
-  white-space:
-  pre-wrap;
-
-  overflow-wrap:
-  anywhere;
-
+  white-space: pre-wrap;
 }
 
+.schedule {
 
-@media
-(max-width: 450px) {
+  color: #cbd5e1;
 
-  .light-row {
+  line-height: 1.8;
 
-    grid-template-columns:
-    1fr 60px 120px;
-
-  }
-
-
-  .light-name {
-
-    font-size:
-    17px;
-
-  }
-
-
-  .toggle-button {
-
-    font-size:
-    14px;
-
-  }
-
+  font-size: 14px;
 }
 
 </style>
 
 </head>
 
-
 <body>
 
-
 <div class="container">
-
 
 <h1>
 ESP32 CONTROL
 </h1>
 
-
 <div class="subtitle">
-3 Independent Outputs
+3 Output Auto / Manual Control
 </div>
 
 
-
-<!-- CONNECTION -->
+<!-- SYSTEM STATUS -->
 
 <div class="card">
 
+<div class="status-grid">
 
-<div class="connection-row">
+<div class="status-item">
 
+<div class="label">
+MQTT SERVER
+</div>
 
 <div>
 
-<div class="label">
-MQTT CONNECTION
-</div>
-
-
-<div class="connection">
-
 <span
-id="connDot"
-class="dot">
+id="mqttDot"
+class="dot red">
 </span>
 
-
-<span id="connText">
+<span id="mqttStatus">
 Disconnected
 </span>
 
@@ -531,49 +384,129 @@ Disconnected
 </div>
 
 
-<div style="text-align:right">
+<div class="status-item">
 
 <div class="label">
-DEVICE
+ESP32 WIFI
 </div>
 
-<strong>
-ESP01
+<div>
+
+<span
+id="wifiDot"
+class="dot red">
+</span>
+
+<span id="wifiStatus">
+OFFLINE
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div style="margin-top:15px">
+
+<div class="label">
+THAILAND SERVER TIME
+</div>
+
+<strong id="serverTime">
+---
 </strong>
 
 </div>
 
+</div>
+
+
+<!-- MODE -->
+
+<div class="card">
+
+<div class="label">
+OPERATING MODE
+</div>
+
+
+<div class="mode-buttons">
+
+<button
+id="autoButton"
+class="mode-button"
+onclick="sendMode('AUTO')">
+AUTO
+</button>
+
+
+<button
+id="manualButton"
+class="mode-button"
+onclick="sendMode('MANUAL')">
+MANUAL
+</button>
 
 </div>
 
 
+<div
+id="modeStatus"
+class="mode-status">
+
+MODE : ---
+
 </div>
 
+</div>
+
+
+<!-- AUTO SCHEDULE -->
+
+<div class="card">
+
+<div class="label">
+AUTO SCHEDULE
+</div>
+
+<div class="schedule">
+
+16:30 - 16:35 → ON<br>
+
+16:35 - 16:40 → OFF<br>
+
+16:40 - 16:45 → ON<br>
+
+16:45 - 17:00 → OFF<br>
+
+17:00 เป็นต้นไป → ON
+
+</div>
+
+</div>
 
 
 <!-- LIGHT 1 -->
 
 <div class="card">
 
-
 <div class="light-row">
-
 
 <div class="light-name">
 LIGHT 1
 </div>
 
-
 <div
 id="status1"
-class="status">
+class="light-status">
 ---
 </div>
 
-
 <button
 id="button1"
-class="toggle-button control-button"
+class="light-button"
 onclick="toggleLight(1)"
 disabled>
 
@@ -581,37 +514,30 @@ WAIT
 
 </button>
 
-
 </div>
 
-
 </div>
-
 
 
 <!-- LIGHT 2 -->
 
 <div class="card">
 
-
 <div class="light-row">
-
 
 <div class="light-name">
 LIGHT 2
 </div>
 
-
 <div
 id="status2"
-class="status">
+class="light-status">
 ---
 </div>
 
-
 <button
 id="button2"
-class="toggle-button control-button"
+class="light-button"
 onclick="toggleLight(2)"
 disabled>
 
@@ -619,37 +545,30 @@ WAIT
 
 </button>
 
-
 </div>
 
-
 </div>
-
 
 
 <!-- LIGHT 3 -->
 
 <div class="card">
 
-
 <div class="light-row">
-
 
 <div class="light-name">
 LIGHT 3
 </div>
 
-
 <div
 id="status3"
-class="status">
+class="light-status">
 ---
 </div>
 
-
 <button
 id="button3"
-class="toggle-button control-button"
+class="light-button"
 onclick="toggleLight(3)"
 disabled>
 
@@ -657,36 +576,28 @@ WAIT
 
 </button>
 
-
 </div>
 
-
 </div>
-
 
 
 <!-- LOGIN -->
 
 <div class="card">
 
-
 <div class="label">
 MQTT LOGIN
 </div>
 
-
 <input
 id="username"
-type="text"
 value="esp01"
 placeholder="Username">
-
 
 <input
 id="password"
 type="password"
 placeholder="HiveMQ Password">
-
 
 <button
 id="connectButton"
@@ -697,31 +608,24 @@ Connect
 
 </button>
 
-
 <button
-id="disconnectButton"
 class="disconnect-button"
-onclick="disconnectMQTT()"
-disabled>
+onclick="disconnectMQTT()">
 
 Disconnect
 
 </button>
 
-
 </div>
-
 
 
 <!-- LOG -->
 
 <div class="card">
 
-
 <div class="label">
 SYSTEM LOG
 </div>
-
 
 <div
 id="log"
@@ -731,16 +635,12 @@ Ready.
 
 </div>
 
-
 </div>
 
-
 </div>
-
 
 
 <script>
-
 
 // =====================================================
 // HIVEMQ
@@ -749,10 +649,8 @@ Ready.
 const MQTT_HOST =
 "380dfaf330224340913625c3fd2802b8.s1.eu.hivemq.cloud";
 
-
 const MQTT_PORT =
 8884;
-
 
 
 // =====================================================
@@ -761,246 +659,504 @@ const MQTT_PORT =
 
 const COMMAND_TOPICS = {
 
-  1:
-  "factory/esp01/light1/command",
+1:
+"factory/esp01/light1/command",
 
-  2:
-  "factory/esp01/light2/command",
+2:
+"factory/esp01/light2/command",
 
-  3:
-  "factory/esp01/light3/command"
+3:
+"factory/esp01/light3/command"
 
 };
 
 
 const STATUS_TOPICS = {
 
-  1:
-  "factory/esp01/light1/status",
+1:
+"factory/esp01/light1/status",
 
-  2:
-  "factory/esp01/light2/status",
+2:
+"factory/esp01/light2/status",
 
-  3:
-  "factory/esp01/light3/status"
+3:
+"factory/esp01/light3/status"
 
 };
 
+
+const MODE_COMMAND =
+"factory/esp01/mode/command";
+
+const MODE_STATUS =
+"factory/esp01/mode/status";
+
+const WIFI_STATUS =
+"factory/esp01/wifi/status";
+
+const WIFI_RSSI =
+"factory/esp01/wifi/rssi";
+
+const TIME_STATUS =
+"factory/esp01/time";
 
 
 // =====================================================
 // VARIABLES
 // =====================================================
 
-let client =
-null;
+let client = null;
 
-
-let manualDisconnect =
-false;
-
+let currentMode = null;
 
 let lightState = {
 
-  1:
-  null,
-
-  2:
-  null,
-
-  3:
-  null
+1: null,
+2: null,
+3: null
 
 };
-
 
 
 // =====================================================
 // LOG
 // =====================================================
 
-function log(
-  message
-) {
+function log(message) {
+
+const time =
+new Date()
+.toLocaleTimeString();
 
 
-  const time =
-  new Date()
-  .toLocaleTimeString();
+const box =
+document
+.getElementById("log");
 
 
-  const box =
-  document
-  .getElementById(
-    "log"
-  );
+box.textContent =
 
-
-  box.textContent =
-
-  "[" +
-  time +
-  "] " +
-  message +
-  "\n" +
-  box.textContent;
+"[" +
+time +
+"] " +
+message +
+"\n" +
+box.textContent;
 
 }
 
 
-
 // =====================================================
-// CONNECTION DISPLAY
+// MQTT DISPLAY
 // =====================================================
 
-function setConnection(
-  state,
-  text
+function setMQTTStatus(
+connected
 ) {
 
+const dot =
+document
+.getElementById(
+"mqttDot"
+);
 
-  const dot =
-  document
-  .getElementById(
-    "connDot"
-  );
-
-
-  const label =
-  document
-  .getElementById(
-    "connText"
-  );
+const text =
+document
+.getElementById(
+"mqttStatus"
+);
 
 
-  dot.className =
-  "dot " +
-  state;
+if (connected) {
 
+dot.className =
+"dot green";
 
-  label.textContent =
-  text;
+text.textContent =
+"Connected";
 
+}
 
-  document
-  .getElementById(
-    "connectButton"
-  )
-  .disabled =
+else {
 
-  state ===
-  "online" ||
+dot.className =
+"dot red";
 
-  state ===
-  "connecting";
+text.textContent =
+"Disconnected";
 
-
-  document
-  .getElementById(
-    "disconnectButton"
-  )
-  .disabled =
-
-  state !==
-  "online";
+}
 
 }
 
 
+// =====================================================
+// WIFI DISPLAY
+// =====================================================
+
+function setWiFiStatus(
+status
+) {
+
+const dot =
+document
+.getElementById(
+"wifiDot"
+);
+
+const text =
+document
+.getElementById(
+"wifiStatus"
+);
+
+
+if (
+status === "ONLINE"
+) {
+
+dot.className =
+"dot green";
+
+text.textContent =
+"ONLINE";
+
+}
+
+else {
+
+dot.className =
+"dot red";
+
+text.textContent =
+"OFFLINE";
+
+}
+
+}
+
 
 // =====================================================
-// STATUS DISPLAY
+// MODE DISPLAY
+// =====================================================
+
+function updateMode(
+mode
+) {
+
+mode =
+mode
+.trim()
+.toUpperCase();
+
+
+currentMode =
+mode;
+
+
+const autoButton =
+document
+.getElementById(
+"autoButton"
+);
+
+
+const manualButton =
+document
+.getElementById(
+"manualButton"
+);
+
+
+document
+.getElementById(
+"modeStatus"
+)
+.textContent =
+
+"MODE : " +
+mode;
+
+
+autoButton.className =
+"mode-button";
+
+
+manualButton.className =
+"mode-button";
+
+
+if (
+mode === "AUTO"
+) {
+
+autoButton.classList.add(
+"auto-active"
+);
+
+}
+
+else if (
+mode === "MANUAL"
+) {
+
+manualButton.classList.add(
+"manual-active"
+);
+
+}
+
+
+updateButtons();
+
+}
+
+
+// =====================================================
+// UPDATE MANUAL BUTTONS
+// =====================================================
+
+function updateButtons() {
+
+for (
+let i = 1;
+i <= 3;
+i++
+) {
+
+const button =
+document
+.getElementById(
+"button" + i
+);
+
+
+if (
+currentMode !==
+"MANUAL"
+) {
+
+button.disabled =
+true;
+
+continue;
+
+}
+
+
+if (
+lightState[i] === null
+) {
+
+button.disabled =
+true;
+
+continue;
+
+}
+
+
+button.disabled =
+false;
+
+}
+
+}
+
+
+// =====================================================
+// LIGHT DISPLAY
 // =====================================================
 
 function setLightStatus(
-  number,
-  message
+number,
+message
 ) {
 
-
-  const msg =
-  message
-  .trim()
-  .toUpperCase();
-
-
-  if (
-    msg !== "ON" &&
-    msg !== "OFF"
-  ) {
-
-    return;
-
-  }
+const msg =
+message
+.trim()
+.toUpperCase();
 
 
-  lightState[
-    number
-  ] =
-  msg;
+if (
+msg !== "ON" &&
+msg !== "OFF"
+) {
 
-
-  const status =
-  document
-  .getElementById(
-    "status" +
-    number
-  );
-
-
-  const button =
-  document
-  .getElementById(
-    "button" +
-    number
-  );
-
-
-  status.textContent =
-  msg;
-
-
-  button.disabled =
-  false;
-
-
-  if (
-    msg === "ON"
-  ) {
-
-
-    status.className =
-    "status on";
-
-
-    button.className =
-    "toggle-button control-button turn-off";
-
-
-    button.textContent =
-    "TURN OFF";
-
-  }
-
-
-  else {
-
-
-    status.className =
-    "status off";
-
-
-    button.className =
-    "toggle-button control-button turn-on";
-
-
-    button.textContent =
-    "TURN ON";
-
-  }
+return;
 
 }
 
+
+lightState[number] =
+msg;
+
+
+const status =
+document
+.getElementById(
+"status" + number
+);
+
+
+const button =
+document
+.getElementById(
+"button" + number
+);
+
+
+status.textContent =
+msg;
+
+
+if (
+msg === "ON"
+) {
+
+status.className =
+"light-status on";
+
+button.className =
+"light-button turn-off";
+
+button.textContent =
+"TURN OFF";
+
+}
+
+else {
+
+status.className =
+"light-status off";
+
+button.className =
+"light-button turn-on";
+
+button.textContent =
+"TURN ON";
+
+}
+
+
+updateButtons();
+
+}
+
+
+// =====================================================
+// SEND MODE
+// =====================================================
+
+function sendMode(
+mode
+) {
+
+if (
+!client ||
+!client.connected
+) {
+
+alert(
+"MQTT ยังไม่ได้เชื่อมต่อ"
+);
+
+return;
+
+}
+
+
+client.publish(
+MODE_COMMAND,
+mode
+);
+
+
+log(
+"TX MODE = " +
+mode
+);
+
+}
+
+
+// =====================================================
+// TOGGLE LIGHT
+// =====================================================
+
+function toggleLight(
+number
+) {
+
+if (
+currentMode !==
+"MANUAL"
+) {
+
+alert(
+"ขณะนี้อยู่ AUTO MODE"
+);
+
+return;
+
+}
+
+
+if (
+!client ||
+!client.connected
+) {
+
+return;
+
+}
+
+
+if (
+lightState[number] === null
+) {
+
+return;
+
+}
+
+
+const command =
+
+lightState[number] ===
+"ON"
+
+?
+
+"OFF"
+
+:
+
+"ON";
+
+
+client.publish(
+
+COMMAND_TOPICS[
+number
+],
+
+command
+
+);
+
+
+log(
+
+"TX LIGHT " +
+number +
+" = " +
+command
+
+);
+
+}
 
 
 // =====================================================
@@ -1009,379 +1165,285 @@ function setLightStatus(
 
 function connectMQTT() {
 
-
-  const username =
-  document
-  .getElementById(
-    "username"
-  )
-  .value
-  .trim();
-
-
-  const password =
-  document
-  .getElementById(
-    "password"
-  )
-  .value;
-
-
-  if (
-    !username ||
-    !password
-  ) {
-
-
-    alert(
-      "กรุณากรอก Username และ Password"
-    );
-
-
-    return;
-
-  }
-
-
-
-  if (
-    client
-  ) {
-
-
-    try {
-
-      client.end(
-        true
-      );
-
-    }
-
-    catch(e) {}
-
-
-    client =
-    null;
-
-  }
-
-
-
-  manualDisconnect =
-  false;
-
-
-  setConnection(
-    "connecting",
-    "Connecting..."
-  );
-
-
-  log(
-    "Connecting HiveMQ..."
-  );
-
-
-
-  const url =
-
-  "wss://" +
-  MQTT_HOST +
-  ":" +
-  MQTT_PORT +
-  "/mqtt";
-
-
-
-  client =
-  mqtt.connect(
-    url,
-    {
-
-
-      username:
-      username,
-
-
-      password:
-      password,
-
-
-      clientId:
-
-      "WEB_" +
-      Date.now() +
-      "_" +
-      Math.random()
-      .toString(16)
-      .slice(2,8),
-
-
-      clean:
-      true,
-
-
-      keepalive:
-      30,
-
-
-      connectTimeout:
-      15000,
-
-
-      reconnectPeriod:
-      5000,
-
-
-      resubscribe:
-      true
-
-    }
-  );
-
-
-
-  // =================================================
-  // CONNECT
-  // =================================================
-
-  client.on(
-    "connect",
-    function() {
-
-
-      setConnection(
-        "online",
-        "Connected"
-      );
-
-
-      log(
-        "MQTT Connected"
-      );
-
-
-
-      client.subscribe(
-
-        [
-          STATUS_TOPICS[1],
-          STATUS_TOPICS[2],
-          STATUS_TOPICS[3]
-        ],
-
-        {
-          qos:
-          0
-        },
-
-        function(error) {
-
-
-          if (
-            error
-          ) {
-
-
-            log(
-              "Subscribe Error: " +
-              error.message
-            );
-
-          }
-
-
-          else {
-
-
-            log(
-              "Subscribed LIGHT 1 / 2 / 3"
-            );
-
-          }
-
-        }
-
-      );
-
-    }
-
-  );
-
-
-
-  // =================================================
-  // RECEIVE MESSAGE
-  // =================================================
-
-  client.on(
-    "message",
-    function(
-      topic,
-      payload
-    ) {
-
-
-      const message =
-      payload.toString();
-
-
-      log(
-
-        "RX " +
-        topic +
-        " = " +
-        message
-
-      );
-
-
-
-      if (
-        topic ===
-        STATUS_TOPICS[1]
-      ) {
-
-
-        setLightStatus(
-          1,
-          message
-        );
-
-      }
-
-
-
-      else if (
-        topic ===
-        STATUS_TOPICS[2]
-      ) {
-
-
-        setLightStatus(
-          2,
-          message
-        );
-
-      }
-
-
-
-      else if (
-        topic ===
-        STATUS_TOPICS[3]
-      ) {
-
-
-        setLightStatus(
-          3,
-          message
-        );
-
-      }
-
-    }
-
-  );
-
-
-
-  // =================================================
-  // RECONNECT
-  // =================================================
-
-  client.on(
-    "reconnect",
-    function() {
-
-
-      if (
-        manualDisconnect
-      ) {
-
-        return;
-
-      }
-
-
-      setConnection(
-        "connecting",
-        "Reconnecting..."
-      );
-
-
-      log(
-        "Reconnecting..."
-      );
-
-    }
-
-  );
-
-
-
-  // =================================================
-  // OFFLINE
-  // =================================================
-
-  client.on(
-    "offline",
-    function() {
-
-
-      if (
-        manualDisconnect
-      ) {
-
-        return;
-
-      }
-
-
-      setConnection(
-        "connecting",
-        "Reconnecting..."
-      );
-
-    }
-
-  );
-
-
-
-  // =================================================
-  // ERROR
-  // =================================================
-
-  client.on(
-    "error",
-    function(error) {
-
-
-      log(
-        "MQTT Error: " +
-        error.message
-      );
-
-
-      if (
-        !manualDisconnect
-      ) {
-
-
-        setConnection(
-          "connecting",
-          "Reconnecting..."
-        );
-
-      }
-
-    }
-
-  );
+const username =
+document
+.getElementById(
+"username"
+)
+.value
+.trim();
+
+
+const password =
+document
+.getElementById(
+"password"
+)
+.value;
+
+
+if (
+!username ||
+!password
+) {
+
+alert(
+"กรุณากรอก Username / Password"
+);
+
+return;
 
 }
 
+
+if (client) {
+
+try {
+
+client.end(
+true
+);
+
+}
+catch(e) {}
+
+}
+
+
+const url =
+
+"wss://" +
+MQTT_HOST +
+":" +
+MQTT_PORT +
+"/mqtt";
+
+
+client =
+mqtt.connect(
+url,
+{
+
+username:
+username,
+
+password:
+password,
+
+clientId:
+
+"WEB_" +
+Date.now() +
+"_" +
+Math.random()
+.toString(16)
+.slice(2,8),
+
+clean:
+true,
+
+keepalive:
+30,
+
+reconnectPeriod:
+5000,
+
+connectTimeout:
+15000
+
+}
+);
+
+
+client.on(
+"connect",
+function() {
+
+setMQTTStatus(
+true
+);
+
+
+log(
+"MQTT Connected"
+);
+
+
+client.subscribe(
+[
+
+STATUS_TOPICS[1],
+STATUS_TOPICS[2],
+STATUS_TOPICS[3],
+
+MODE_STATUS,
+
+WIFI_STATUS,
+
+WIFI_RSSI,
+
+TIME_STATUS
+
+]
+);
+
+}
+);
+
+
+client.on(
+"message",
+function(
+topic,
+payload
+) {
+
+const message =
+payload.toString();
+
+
+if (
+topic ===
+STATUS_TOPICS[1]
+) {
+
+setLightStatus(
+1,
+message
+);
+
+}
+
+else if (
+topic ===
+STATUS_TOPICS[2]
+) {
+
+setLightStatus(
+2,
+message
+);
+
+}
+
+else if (
+topic ===
+STATUS_TOPICS[3]
+) {
+
+setLightStatus(
+3,
+message
+);
+
+}
+
+else if (
+topic ===
+MODE_STATUS
+) {
+
+updateMode(
+message
+);
+
+}
+
+else if (
+topic ===
+WIFI_STATUS
+) {
+
+setWiFiStatus(
+message
+);
+
+}
+
+else if (
+topic ===
+WIFI_RSSI
+) {
+
+document
+.getElementById(
+"wifiStatus"
+)
+.textContent =
+
+"ONLINE (" +
+message +
+" dBm)";
+
+}
+
+else if (
+topic ===
+TIME_STATUS
+) {
+
+document
+.getElementById(
+"serverTime"
+)
+.textContent =
+message;
+
+}
+
+}
+);
+
+
+client.on(
+"offline",
+function() {
+
+setMQTTStatus(
+false
+);
+
+}
+);
+
+
+client.on(
+"close",
+function() {
+
+setMQTTStatus(
+false
+);
+
+}
+);
+
+
+client.on(
+"reconnect",
+function() {
+
+const text =
+document
+.getElementById(
+"mqttStatus"
+);
+
+text.textContent =
+"Reconnecting...";
+
+
+document
+.getElementById(
+"mqttDot"
+)
+.className =
+"dot orange";
+
+}
+);
+
+}
 
 
 // =====================================================
@@ -1390,167 +1452,38 @@ function connectMQTT() {
 
 function disconnectMQTT() {
 
+if (client) {
 
-  manualDisconnect =
-  true;
+client.end(
+true
+);
 
-
-  if (
-    client
-  ) {
-
-
-    client.end(
-      true
-    );
-
-
-    client =
-    null;
-
-  }
-
-
-  setConnection(
-    "offline",
-    "Disconnected"
-  );
-
-
-  log(
-    "Disconnected"
-  );
+client =
+null;
 
 }
 
 
-
-// =====================================================
-// TOGGLE LIGHT
-// =====================================================
-
-function toggleLight(
-  number
-) {
-
-
-  if (
-    !client ||
-    !client.connected
-  ) {
-
-
-    alert(
-      "MQTT ยังไม่ได้เชื่อมต่อ"
-    );
-
-
-    return;
-
-  }
-
-
-
-  if (
-    lightState[
-      number
-    ] === null
-  ) {
-
-
-    alert(
-      "ยังไม่ได้รับสถานะจาก ESP32"
-    );
-
-
-    return;
-
-  }
-
-
-
-  const command =
-
-  lightState[
-    number
-  ] === "ON"
-
-  ?
-
-  "OFF"
-
-  :
-
-  "ON";
-
-
-
-  const topic =
-  COMMAND_TOPICS[
-    number
-  ];
-
-
-
-  log(
-
-    "TX LIGHT " +
-    number +
-    " = " +
-    command
-
-  );
-
-
-
-  client.publish(
-    topic,
-    command,
-    {
-
-      qos:
-      0,
-
-      retain:
-      false
-
-    },
-
-    function(error) {
-
-
-      if (
-        error
-      ) {
-
-
-        log(
-          "Publish Error: " +
-          error.message
-        );
-
-      }
-
-    }
-
-  );
+setMQTTStatus(
+false
+);
 
 }
-
 
 
 // =====================================================
 // START
 // =====================================================
 
-setConnection(
-  "offline",
-  "Disconnected"
+setMQTTStatus(
+false
 );
 
+setWiFiStatus(
+"OFFLINE"
+);
 
 </script>
-
 
 </body>
 
